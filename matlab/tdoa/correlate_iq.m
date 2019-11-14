@@ -1,4 +1,4 @@
-function [ iq_corr ] = correlate_iq( iq1, iq2, corr_strategy, smoothing_factor )
+function [ iq_corr, delay] = correlate_iq( iq1, iq2, corr_strategy, smoothing_factor )
 %correlate_iq correlates two complex iq signal according to the specified strategy
 % iq1: first complex IQ signal
 % iq2: second complex IQ signal
@@ -10,14 +10,15 @@ function [ iq_corr ] = correlate_iq( iq1, iq2, corr_strategy, smoothing_factor )
     switch corr_strategy
         
         case 'abs'
-            abs1_detrend = abs(iq1);
-            abs2_detrend = abs(iq2);
+            abs1_detrend = detrend(abs(iq1));
+            abs2_detrend = detrend(abs(iq2));
 
-            abs_detrend_corr = xcorr(abs1_detrend, abs2_detrend, 'coeff');
+            [abs_detrend_corr, lags] = xcorr(abs1_detrend, abs2_detrend, 'coeff');
             
             ref1 = max(xcorr(abs1_detrend, abs1_detrend, 'coeff'));
             ref2 = max(xcorr(abs2_detrend, abs2_detrend, 'coeff'));
-            cor_max = max(abs_detrend_corr);
+            [cor_max, id] = max(abs_detrend_corr);
+            delay = lags(id);
             disp(['abs Korrelation, max ' num2str(cor_max) ', ref1 = ' num2str(ref1) ', ref2= ' num2str(ref2) ', => ' num2str(100*2*cor_max / (ref1+ref2)) '%']);
             
             if smoothing_factor ~= 0 
@@ -39,15 +40,13 @@ function [ iq_corr ] = correlate_iq( iq1, iq2, corr_strategy, smoothing_factor )
 
             d_phase1_detrend = detrend(d_phase1);
             d_phase2_detrend = detrend(d_phase2);
-            
-%             d_phase1_detrend = d_phase1 - nanmean(d_phase1);
-%             d_phase2_detrend = d_phase2 - nanmean(d_phase2);
-            
-            d_phase_detrend_corr = xcorr(d_phase1_detrend, d_phase2_detrend, 'coeff');
+
+            [d_phase_detrend_corr, lags] = xcorr(d_phase1_detrend, d_phase2_detrend, 'coeff');
 
             ref1 = max(xcorr(d_phase1_detrend,d_phase1_detrend, 'coeff'));
             ref2 = max(xcorr(d_phase2_detrend,d_phase2_detrend, 'coeff'));
-            cor_max = max(d_phase_detrend_corr);
+            [cor_max, id] = max(d_phase_detrend_corr);
+            delay = lags(id);
             disp(['dphase Korrelation, max ' num2str(cor_max) ', ref1 = ' num2str(ref1) ', ref2= ' num2str(ref2) ', => ' num2str(100*2*cor_max / (ref1+ref2)) '%'  ]);
             
             if smoothing_factor ~= 0 
@@ -68,8 +67,6 @@ function [ iq_corr ] = correlate_iq( iq1, iq2, corr_strategy, smoothing_factor )
             if smoothing_factor ~= 0 
                 iq_corr = smooth(abs(iq_corr), smoothing_factor);
             end
-            
-            iq_corr = iq_corr ./ max(iq_corr);
                         
         otherwise
             error('correlate_iq.m: correlation strategy not supported (choose abs or dphase)');

@@ -1,2 +1,2 @@
-# Ignore .dat files
-*.dat
+# Ignore test files
+test
