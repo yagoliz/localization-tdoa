@@ -1,3 +1,6 @@
-# Ignore test files
+# Ignore results
 matlab/results/
 matlab/batch_config.m
+
+# Ignore data
+data/
