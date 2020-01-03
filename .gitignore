@@ -10,3 +10,6 @@ analysis/*.Rproj
 analysis/*.png
 analysis/*.svg
 analysis/*.pdf
+
+# Ignore .txt files
+scripts/*.txt
