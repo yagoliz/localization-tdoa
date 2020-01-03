@@ -1,2 +1,3 @@
 # Ignore test files
-test
+matlab/results/
+matlab/batch_config.m

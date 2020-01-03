@@ -9,8 +9,8 @@ function [ iq_signal ] = read_file_iq( filename )
     a = fread(fileID);
     fclose(fileID);
 
-    inphase1 = a(1:2:end) -128;
-    quadrature1 = a(2:2:end) -128;
+    inphase1 = a(1:2:end) - 128;
+    quadrature1 = a(2:2:end) - 128;
     disp(['successfully read ' int2str(length(inphase1)) ' samples']);
 
     % complex representation
