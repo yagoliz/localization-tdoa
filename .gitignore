@@ -4,3 +4,9 @@ matlab/batch_config.m
 
 # Ignore data
 data/
+
+# Ignore R project files
+analysis/*.Rproj
+analysis/*.png
+analysis/*.svg
+analysis/*.pdf
