@@ -1,4 +1,4 @@
-function signal_corrected = correct_fo(signal, PPM, sampling_rate, fRS, fUS)
+oy function signal_corrected = correct_fo(signal, PPM, samplingRate, fRS, fUS)
 %CORRECT_FO Correct local oscillator offset of RTL-SDR
 % -signal: vector with complex IQ
 % -PPM: LO offset in parts per million
@@ -6,8 +6,10 @@ function signal_corrected = correct_fo(signal, PPM, sampling_rate, fRS, fUS)
 % -fUS: Frequency of the unknown signal (Hz)
 % Signal is assumed to be split in 3 chunks of equal length
 
-Ts = 1/sampling_rate;
-t = 0:Ts:Ts*(length(signal) - 1);
+Ts = 1/samplingRate;
+phi = PPM * 1e-6;
+t = 0:Ts/(1+phi):Ts/(1+phi)*(length(signal) - 1);
+% t = 0:Ts:Ts*(length(signal) - 1);
 chunk_length = length(signal)/3;
 
 % First chunk correction
@@ -27,8 +29,9 @@ secondary_reference_chunk = secondary_reference_chunk .* (exp(-1i * 2 * pi .* se
 
 % Time correction
 signal_corrected = [reference_chunk; unknown_chunk; secondary_reference_chunk];
-sampling_vector = 1:numel(signal_corrected);
-signal_corrected = interp1(sampling_vector, signal_corrected, sampling_vector.*(1+(1e-6) * PPM))';
+% sampling_vector = 1:numel(signal_corrected);
+% signal_corrected = interp1(sampling_vector, signal_corrected, sampling_vector.*(1+(1e-6) * PPM))';
+signal_corrected = resample(signal_corrected, t, samplingRate);
 
 % Eliminate al odd numbers (Nan)
 signal_corrected(isnan(signal_corrected)) = 0;

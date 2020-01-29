@@ -1,5 +1,5 @@
 %% Calculate the Local Oscillator (LO) offset for a given chunk of data
-function [PPM, PPM2] = ltess(chunk, sampling_rate)
+function [PPM, PPM2, PSS_percent] = ltess(chunk, sampling_rate)
 % Configuration parameters
 RESAMPLE_FACTOR = 60;
 PSS_STEP = 9600;

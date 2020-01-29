@@ -7,9 +7,12 @@ data/
 
 # Ignore R project files
 analysis/*.Rproj
+analysis/*.RData
+analysis/*.Rhistory
 analysis/*.png
 analysis/*.svg
 analysis/*.pdf
 
 # Ignore .txt files
 scripts/*.txt
+.Rproj.user
