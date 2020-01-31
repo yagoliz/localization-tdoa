@@ -33,7 +33,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
 
 %     num_samples_per_freq = 4e6;
 %     num_samples_per_slice = 1.2e6;
-    guard_interval = 500e3; % time to switch to a new frequency, fixed, empirically determined
+    guard_interval = 50e3; % time to switch to a new frequency, fixed, empirically determined
 %     sample_rate = 2e6;  % in Hz
 
     signal11_complex = signal1_complex(1                                       : num_samples_per_slice);

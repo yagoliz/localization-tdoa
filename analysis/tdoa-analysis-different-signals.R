@@ -2,8 +2,8 @@ library(R.matlab)
 library(ggplot2)
 
 # Files for data analysis
-folder = "~/github/tdoa-evaluation-rtlsdr/results/"
-signal = "100806"
+folder = "~/Imdea/git/localization/localization-tdoa/matlab/results/"
+signal = "610806"
 type = "dphase"
 
 file_original = paste(folder, paste(signal, "original", paste(type, ".mat", sep=""), sep="_"), sep="")
@@ -55,5 +55,5 @@ if (substr(signal, 1, 3) == "196") {
 # Ggplot magic
 p <- ggplot(data_frame, aes(x = reorder(labels, -doa, median), y = doa, color = reorder(labels, -doa, median))) + geom_boxplot(outlier.shape=16, outlier.size=0, notch=FALSE) 
 p <- p + xlab("Method") + ylab("TDOA (m)") + theme(legend.position="none") + ylim(0, 2100) + ggtitle(paste("Results with", title, sep=" "))
-p + geom_text(dataMedian, mapping = aes(x = reorder(Group.1, -x, median), y = x, color = reorder(Group.1, -x, median),label=sprintf("%0.2f", round(x, digits = 2))), position = position_dodge(width = 1), size = 4, vjust = -1)
-
+p <- p + geom_text(dataMedian, mapping = aes(x = reorder(Group.1, -x, median), y = x, color = reorder(Group.1, -x, median),label=sprintf("%0.2f", round(x, digits = 2))), position = position_dodge(width = 1), size = 15, vjust = -1)
+p + theme(axis.text = element_text(size = 40)) + theme(axis.title.x = element_text(size = 40)) + theme(axis.title.y = element_text(size = 40))

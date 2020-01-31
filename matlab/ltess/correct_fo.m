@@ -1,4 +1,4 @@
-oy function signal_corrected = correct_fo(signal, PPM, samplingRate, fRS, fUS)
+function signal_corrected = correct_fo(signal, PPM, samplingRate, fRS, fUS)
 %CORRECT_FO Correct local oscillator offset of RTL-SDR
 % -signal: vector with complex IQ
 % -PPM: LO offset in parts per million
