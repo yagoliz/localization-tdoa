@@ -120,11 +120,11 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
     valid_samples_right = (rx_distance - rx_distance_diff ) / (3e8 / sample_rate);  % number of valid samples right of idx2
     valid_samples_left = -(-rx_distance - rx_distance_diff ) / (3e8 / sample_rate); % number of valid samples left of idx2
         
-    for ii=1:valid_samples_right+100
+    for ii=1:valid_samples_right+3
         delay_mask(idx1+ii) = 0.8;
     end
      
-    for ii=1:valid_samples_left+100
+    for ii=1:valid_samples_left+3
         delay_mask(idx1-ii) = 0.8;
     end
      
@@ -135,16 +135,17 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
     [corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type, smoothing_factor);
     
     %truncate to valid area
-    corr_signal_2_valid = zeros(length(corr_signal_2),1)-1;
-    corr_signal_2_valid(idx1) = corr_signal_2(idx1);
+%     corr_signal_2_valid = zeros(length(corr_signal_2),1)-1;
+%     corr_signal_2_valid(idx1) = corr_signal_2(idx1);
+    corr_signal_2_valid = corr_signal_2;
 
-     for ii=1:valid_samples_right+100
-         corr_signal_2_valid(idx1+ii) = corr_signal_2(idx1+ii);
-     end
-     
-     for ii=1:valid_samples_left+100
-         corr_signal_2_valid(idx1-ii) = corr_signal_2(idx1-ii);
-     end
+%      for ii=1:valid_samples_right+3
+%          corr_signal_2_valid(idx1+ii) = corr_signal_2(idx1+ii);
+%      end
+%      
+%      for ii=1:valid_samples_left+3
+%          corr_signal_2_valid(idx1-ii) = corr_signal_2(idx1-ii);
+%      end
      
     %corr_signal_2_valid = corr_signal_2; % truncation abschalten
 
@@ -185,8 +186,9 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
     %native
     [corr_signal_3, lags3] = correlate_iq(signal13_complex, signal23_complex, corr_type, smoothing_factor);
 %     corr3_reliability = corr_reliability(corr_signal_3);
-    corr_signal_3_valid = zeros(length(corr_signal_3),1) - 1;
-    corr_signal_3_valid(idx1-valid_samples_left-100:idx1+valid_samples_right+100) = corr_signal_3(idx1-valid_samples_left-100:idx1+valid_samples_right+100);
+%     corr_signal_3_valid = zeros(length(corr_signal_3),1) - 1;
+%     corr_signal_3_valid(idx1-valid_samples_left-3:idx1+valid_samples_right+3) = corr_signal_3(idx1-valid_samples_left-3:idx1+valid_samples_right+3);
+    corr_signal_3_valid = corr_signal_3;
 
     [correlation_value(3), idx3] = max(corr_signal_3_valid);
     delay3_native = lags3(idx3);

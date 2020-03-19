@@ -3,13 +3,14 @@ library(ggplot2)
 
 # Files for data analysis
 folder = "~/Imdea/git/localization/localization-tdoa/matlab/results/"
-signal = "196806"
+signal = "806806"
+num_samples = "500000"
 type = "dphase"
 
-file_original = paste(folder, paste(signal, "original", paste(type, ".mat", sep=""), sep="_"), sep="")
-file_fo = paste(folder, paste(signal, "fo_correction_no_interp", paste(type, ".mat", sep=""), sep="_"), sep="")
-file_fo_interp10 = paste(folder, paste(signal, "fo_correction_10_interp", paste(type, ".mat", sep=""), sep="_"), sep="")
-#file_fo_interp10 = paste(folder, paste(signal, "fo_correction_no_interp", paste(type, ".mat", sep=""), sep="_"), sep="")
+file_original = paste(folder, paste(signal, num_samples, "original", paste(type, ".mat", sep=""), sep="_"), sep="")
+file_fo = paste(folder, paste(signal, num_samples,"fo_correction_no_interp", paste(type, ".mat", sep=""), sep="_"), sep="")
+#file_fo_interp10 = paste(folder, paste(signal, num_samples,"fo_correction_no_interp", paste(type, ".mat", sep=""), sep="_"), sep="")
+file_fo_interp10 = paste(folder, paste(signal, num_samples, "fo_correction_10_interp", paste(type, ".mat", sep=""), sep="_"), sep="")
 
 # Resolution for the sampling rate
 resolution = 3e8 / 2e6
@@ -53,7 +54,9 @@ if (substr(signal, 1, 3) == "196") {
 }
 
 # Ggplot magic
-p <- ggplot(data_frame, aes(x = reorder(labels, -doa, median), y = doa, color = reorder(labels, -doa, median))) + geom_boxplot(outlier.shape=16, outlier.size=0, notch=FALSE) 
-p <- p + xlab("Method") + ylab("TDOA (m)") + theme(legend.position="none") + ylim(0, 2100) + ggtitle(paste("Results with", title, sep=" "))
-p <- p + geom_text(dataMedian, mapping = aes(x = reorder(Group.1, -x, median), y = x, color = reorder(Group.1, -x, median),label=sprintf("%0.2f", round(x, digits = 2))), position = position_dodge(width = 1), size = 15, vjust = -1)
-p + theme(axis.text = element_text(size = 40)) + theme(axis.title.x = element_text(size = 40)) + theme(axis.title.y = element_text(size = 40))
+p <- ggplot(data_frame, aes(x = reorder(labels, doa, median), y = doa, color = reorder(labels, doa, median))) + geom_boxplot(outlier.shape=16, outlier.size=0, notch=FALSE) 
+p <- p + xlab("Method") + ylab("TDOA (m)") + theme(legend.position="none") + ylim(0, 900) + ggtitle(paste("Results with", title, sep=" "))
+#p <- p + geom_text(dataMedian, mapping = aes(x = reorder(Group.1, -x, median), y = x, color = reorder(Group.1, -x, median),label=sprintf("%0.2f", round(x, digits = 2))), position = position_dodge(width = 1), size = 15, vjust = -1)
+#p + theme(axis.text = element_text(size = 40)) + theme(axis.title.x = element_text(size = 40)) + theme(axis.title.y = element_text(size = 40))
+
+p + geom_text(dataMedian, mapping = aes(x = reorder(Group.1, -x, median), y = x, color = reorder(Group.1, -x, median),label=sprintf("%0.2f", round(x, digits = 2))), position = position_dodge(width = 1), vjust = -1)

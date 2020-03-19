@@ -2,8 +2,8 @@
 #sudo rmmod dvb_usb_rtl28xxu rtl2832
 
 # Iterations
-num_iterations=48
-start_num=152
+num_iterations=58
+start_num=142
 
 if [ "$#" -ne 7 ]; then
   echo "Usage: $0 <directory-of-rtlsdr> <first-frequency (MHz)> <second-frequency (MHz)> <num-samples> <sampling-frequency> <device-num> <output-dir>"
@@ -13,19 +13,19 @@ fi
 directory="$7"
 current_day=$(date +%Y%m%d)
 
-if [ ! -d "$directory/ltess/$2_$3" ]
+if [ ! -d "$directory/ltess/$2_$3_$4" ]
 then
-    mkdir -p "$directory/ltess/$2_$3"
-    echo "Directory: $directory/ltess/$2_$3"
+    mkdir -p "$directory/ltess/$2_$3_$4"
+    echo "Directory: $directory/ltess/$2_$3_$4"
 fi
 
-if [ ! -d "$directory/localization/$2_$3" ]
+if [ ! -d "$directory/localization/$2_$3_$4" ]
 then
-    mkdir -p "$directory/localization/$2_$3"
+    mkdir -p "$directory/localization/$2_$3_$4"
 fi
 
-directory_ltess="$directory/ltess/$2_$3"
-directory_data="$directory/localization/$2_$3"
+directory_ltess="$directory/ltess/$2_$3_$4"
+directory_data="$directory/localization/$2_$3_$4"
 
 # Create array for experiments
 declare -a dates
