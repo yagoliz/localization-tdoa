@@ -1,0 +1,79 @@
+% =========================================================================
+%  TDOA Simulator
+%  Author: Yago Lizarribar
+% =========================================================================
+
+clear;
+clc;
+close all;
+
+% Let's add the path to the functions
+addpath('tdoa');
+
+%% Geometrical setup
+% Area setup
+xmin = 0; xmax = 1000;
+ymin = 0; ymax = 1000;
+
+% Positions of the sensors
+NUM_SENSORS = 3;
+sensor = zeros(NUM_SENSORS, 2);
+
+% Let's set the positions manually
+sensor(1,:) = [10, 250];
+sensor(2,:) = [100, 900];
+sensor(3,:) = [600, 300];
+% sensor(4,:) = [300, 350];
+
+%% Fake transmitter simulation
+transmitter = [xmax/2, ymax/2];
+sensordist = sqrt(sum((sensor - transmitter).^2,2));
+
+%% Calculate the hyperbolas
+combinations = nchoosek(1:NUM_SENSORS,2);
+NUM_HYPERBOLAS = length(combinations);
+hyp_array = cell(NUM_HYPERBOLAS,1);
+doa_array = zeros(NUM_HYPERBOLAS,1);
+
+for ii = 1:NUM_HYPERBOLAS
+    sensor_1 = combinations(ii,1);
+    sensor_2 = combinations(ii,2);
+    doa_s1_s2 = sensordist(sensor_1) - sensordist(sensor_2) + (100 * rand(1) - 50);
+    hyp_array{ii} = hyperbola(doa_s1_s2, sensor(sensor_1,:), sensor(sensor_2,:));
+    doa_array(ii) = doa_s1_s2;
+end
+
+%% Get the heatmap
+[heat_x, heat_y, mse_doa] = heatmap(doa_array, sensor, [xmin, xmax], [ymin, ymax], 1000);
+
+%% Plot area
+figure();
+
+hold on; grid on;
+xlim([xmin, xmax]); ylim([ymin, ymax]);
+plot(transmitter(1,1), transmitter(1,2), 'kx', 'LineWidth', 3);
+
+% Plot sensors
+for ii = 1:NUM_SENSORS
+   plot(sensor(ii,1), sensor(ii,2), 'rx', 'LineWidth', 3); 
+end
+
+for ii = 1:length(combinations)
+    hyp_points = hyp_array{ii};
+    plot(hyp_points(1,:), hyp_points(2,:), 'b.-');
+end
+
+%% Let's plot the heatmap
+figure();
+
+% Plot the contours/image
+imagesc(heat_x, fliplr(heat_y), log10(mse_doa)); colorbar; colormap jet;
+
+hold on; grid on;
+xlim([xmin, xmax]); ylim([ymin, ymax]);
+plot(transmitter(1,1), transmitter(1,2), 'kx', 'LineWidth', 3);
+
+% Plot sensors
+for ii = 1:NUM_SENSORS
+   plot(sensor(ii,1), sensor(ii,2), 'rx', 'LineWidth', 3); 
+end
