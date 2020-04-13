@@ -29,8 +29,10 @@ elseif length(sensors) == 4
 
 % Same as with 4 sensors, but we compute the least squares
 elseif length(sensors) > 4
-    x = 0;
-    y = 0;
+    [A, b] = getMatrices(doa_array, sensors);
+    result = (A'*A)\A'*b;
+    x = result(2);
+    y = result(3);
     
 else
     error('Not enough input sensors');
@@ -38,6 +40,25 @@ end
 
 end
 
+%% Get matrices
+function [A, b] = getMatrices(doa_array, sensors)
+
+% Let's construct the A and b matrices
+A = zeros(length(doa_array),3);
+b = zeros(length(doa_array),1);
+
+for ii = 1:length(doa_array)
+    % A matrix
+    A(ii,1) = -doa_array(ii);
+    A(ii,2) = sensors(1,1) - sensors(ii+1,1);
+    A(ii,3) = sensors(1,2) - sensors(ii+1,2);
+    
+    % b array
+    b(ii) = 0.5*(doa_array(ii)^2 + norm(sensors(1,:))^2 - norm(sensors(ii+1,:))^2);
+    
+end
+
+end
 
 %% Fang's method
 function [x, y] = exactcomputation(doa_array, sensors)
@@ -66,40 +87,106 @@ cy = sensorc(2);
 R12 = doa_array(1);
 R13 = doa_array(2);
 
-% We obtain the equation coefficients
-% y = g*x + h
-g = ((R13/R12)*b - cx)/cy;
-h = (c^2 - R13^2 + R12*R13*(1 - (b/R12)^2))/(2*cy);
+% Let's put some conditions to avoid errors
+if abs(cy) > 1e-3
+    if abs(R12) > 1e-3
+        % We obtain the equation coefficients
+        % y = g*x + h
+        g = ((R13/R12)*b - cx)/cy;
+        h = (c^2 - R13^2 + R12*R13*(1 - (b/R12)^2))/(2*cy);
 
-% 0 = d*x^2 + e*x + f
-d = -(1 + g^2 - (b/R12)^2);
-e = b*(1-(b/R12)^2) - 2*g*h;
-f = (R12^2/4)*(1-(b/R12)^2)^2 - h^2;
+        % 0 = d*x^2 + e*x + f
+        d = -(1 + g^2 - (b/R12)^2);
+        e = b*(1-(b/R12)^2) - 2*g*h;
+        f = (R12^2/4)*(1-(b/R12)^2)^2 - h^2;
 
-% Now we obtain the positive term x and y
-xrotplus = (-e + sqrt(e^2 - 4*d*f))/(2*d);
-yrotplus = g*xrotplus + h;
+        % Now we obtain the positive term x and y
+        xrotplus = (-e + sqrt(e^2 - 4*d*f))/(2*d);
+        yrotplus = g*xrotplus + h;
 
-% We rotate the values
-resultplus = rotmat_0a * [xrotplus; yrotplus];
+        % Now we obtain the negative term x and y
+        xrotminus = (-e - sqrt(e^2 - 4*d*f))/(2*d);
+        yrotminus = g*xrotminus + h;
+    
+    else
+        if abs(R13) > 1e-3
+            x = b/2;
+            d = (cy/R13)^2 - 1;
+            e = cy*(1 + c^2/R13 + 2*cx*x/(R13^2));
+            f = (R13^2/4)*(1-(c/R13)^2)^2 + ((cx/R13)^2-1)*x^2 + cx*(1-(c/R13)^2)*x;
+            
+            % Now we obtain the positive term x and y
+            xrotplus = (-e + sqrt(e^2 - 4*d*f))/(2*d);
+            yrotplus = g*xrotplus + h;
 
-% We add translate by the location of the sensor
-xplus = resultplus(1) + sensors(1,1);
-yplus = resultplus(2) + sensors(1,2);
+            % Now we obtain the negative term x and y
+            xrotminus = (-e - sqrt(e^2 - 4*d*f))/(2*d);
+            yrotminus = g*xrotminus + h;
 
-% We check the doa and see if the sign is equal to the doa_array
-plusvector = [xplus, yplus];
-plusvectorsign = sign(norm(plusvector - sensors(1,:)) - norm(plusvector - sensors(2,:)));
-if plusvectorsign == sign(doa_array(1))
-    x = xplus;
-    y = yplus;
+        else 
+            % Add it to xrotminus (small trick to only output one value)
+            xrotminus = b/2;
+            yrotminus = (c^2 - cx*b)/(2*cy);
+        end
+    end
+
+% end abs(cy) > 0
+else
+    if abs(cx*R12 - b*R13) < 1e-3
+        warning('No solution possible');
+        x = inf;
+        y = inf;
+        return
+    else
+        x = (R12^2*R13 - R12*R13^2+R12*cx^2 - R13*b^2) / ...
+            (2*(cx*R12 - b*R13));
+        
+        xrotminus = x;
+        xrotplus  = x;
+        
+        if abs(R12) > 1e-3
+            yrotplus = sqrt((R12/2 - b^2/(2*R12) + (b*x)/(R12))^2 - x^2);
+            yrotminus = -yrotplus;
+            
+        elseif abs(R12) < 1e-3 && abs(R13) > 1e-3
+            yrotplus = sqrt((R13/2 - cx^2/(2*R13) + (cx*x)/(R13))^2 - x^2);
+            yrotminus = -yrotplus;
+
+        else
+            warning('No solution possible');
+            x = inf;
+            y = inf;
+            return
+        end
+        
+    end
 end
 
-% Now we obtain the negative term x and y
-xrotminus = (-e - sqrt(e^2 - 4*d*f))/(2*d);
-yrotminus = g*xrotminus + h;
+% Output the results in the proper basis
+% Positive SQRT
+if exist('xrotplus','var')
+    resultplus = rotmat_0a * [xrotplus; yrotplus];
 
-% We rotate the values
+    % We add translate by the location of the sensor
+    xplus = resultplus(1) + sensors(1,1);
+    yplus = resultplus(2) + sensors(1,2);
+
+    % We check the doa and see if the sign is equal to the doa_array
+    plusvector = [xplus, yplus];
+    plusvectornorm = norm(plusvector - sensors(1,:)) - norm(plusvector - sensors(2,:));
+    
+    if abs(plusvectornorm) < 1e-3
+        plusvectorsign = 0;
+    else
+        plusvectorsign = sign(plusvectornorm);
+    end
+    if plusvectorsign == sign(doa_array(1))
+        x = xplus;
+        y = yplus;
+    end
+end
+
+% Negative SQRT
 resultminus = rotmat_0a * [xrotminus; yrotminus];
 
 % We add translate by the location of the sensor
@@ -108,9 +195,16 @@ yminus = resultminus(2) + sensors(1,2);
 
 % We check the doa and see if the sign is equal to the doa_array
 minusvector = [xminus, yminus];
-minusvectorsign = sign(norm(minusvector - sensors(1,:)) - norm(minusvector - sensors(2,:)));
+minusvectornorm = norm(minusvector - sensors(1,:)) - norm(minusvector - sensors(2,:));
+
+if abs(minusvectornorm) < 1e-3
+    minusvectorsign = 0;
+else
+    minusvectorsign = sign(minusvectornorm);
+end
+
 if minusvectorsign == sign(doa_array(1))
-    if exist('x','var') == 1
+    if exist('x','var')
         x = [x, xminus];
         y = [y, yminus];
     else
@@ -120,6 +214,3 @@ if minusvectorsign == sign(doa_array(1))
 end
 
 end
-
-%% Get matrices
-
