@@ -44,7 +44,7 @@ for ii = 1:NUM_HYPERBOLAS
 end
 
 %% Get the heatmap
-[heat_x, heat_y, mse_doa] = heatmap(doa_array, sensor, [xmin, xmax], [ymin, ymax], 1000);
+[heat_x, heat_y, mse_doa] = heatmap(doa_array, sensor, [xmin, xmax], [ymin, ymax], combinations, 1000);
 
 %% Plot area
 figure();

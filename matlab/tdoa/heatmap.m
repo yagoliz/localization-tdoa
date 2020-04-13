@@ -1,4 +1,4 @@
-function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, resolution)
+function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, combinations, resolution)
 %create_heatmap_kl Creates a heatmap for based on mean squared error
 
 %    returns: 
@@ -6,7 +6,7 @@ function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, re
 %    heat_lat: latitudes of heatmap points
 %    mse_doa: heatmap magnitudes
 
-    if nargin == 6
+    if nargin == 7
        resolution = 1000; 
     end
 
@@ -35,7 +35,6 @@ function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, re
             dist_to_rxs = sqrt(sum(([heat_x(idx), heat_y(idy)] - rx).^2, 2));
             
             % current doa in meters
-            combinations = nchoosek(1:length(rx),2);
             current_doa = zeros(length(combinations),1);
             for ii = 1:length(combinations)
                 s1 = combinations(ii,1);
