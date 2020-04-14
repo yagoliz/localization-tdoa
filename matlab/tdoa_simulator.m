@@ -16,18 +16,21 @@ xmin = 0; xmax = 1000;
 ymin = 0; ymax = 1000;
 
 % Positions of the sensors
-NUM_SENSORS = 5;
+NUM_SENSORS = 3;
 sensor = zeros(NUM_SENSORS, 2);
 
 % Let's set the positions manually
 sensor(1,:) = [100, 200];
 sensor(2,:) = [600, 750];
 sensor(3,:) = [800, 500];
-sensor(4,:) = [200, 800];
-sensor(5,:) = [600, 100];
+% sensor(4,:) = [200, 800];
+% sensor(5,:) = [600, 100];
+% sensor(1,:) = [   0, 500];
+% sensor(2,:) = [ 500, 500];
+% sensor(3,:) = [1000, 500];
 
 %% Fake transmitter simulation
-transmitter = [500, 500];
+transmitter = [500, 300];
 sensordist = sqrt(sum((sensor - transmitter).^2,2));
 
 %% Calculate the hyperbolas
@@ -44,7 +47,7 @@ combinations(:,2) = combinations(:,2) + [1:NUM_SENSORS-1]';
 for ii = 1:NUM_HYPERBOLAS
     sensor_1 = combinations(ii,1);
     sensor_2 = combinations(ii,2);
-    doa_s1_s2 = sensordist(sensor_1) - sensordist(sensor_2) + 50*rand(1)j;
+    doa_s1_s2 = sensordist(sensor_1) - sensordist(sensor_2);
     hyp_array{ii} = hyperbola(doa_s1_s2, sensor(sensor_1,:), sensor(sensor_2,:));
     doa_array(ii) = doa_s1_s2;
 end
@@ -62,10 +65,6 @@ hold on; grid on;
 xlim([xmin, xmax]); ylim([ymin, ymax]);
 plot(transmitter(1,1), transmitter(1,2), 'kx', 'LineWidth', 3);
 
-for ii = 1:length(x)
-    plot(x(ii), y(ii), 'gx', 'LineWidth', 3);
-end
-
 % Plot sensors
 for ii = 1:NUM_SENSORS
    plot(sensor(ii,1), sensor(ii,2), 'rx', 'LineWidth', 3); 
@@ -76,13 +75,18 @@ for ii = 1:length(combinations)
     plot(hyp_points(1,:), hyp_points(2,:), 'b.-');
 end
 
+% Plot intersections
+for ii = 1:length(x)
+    plot(x(ii), y(ii), 'gx', 'LineWidth', 3);
+end
+
 %% Let's plot the heatmap
 figure();
 
 % Plot the contours/image
 % imagesc(heat_x, heat_y, flipud(rot90(log10(mse_doa)))); colorbar; colormap jet;
 % set(gca,'YDir','normal')
-h = surf(heat_x, heat_y, rot90(log10(mse_doa))); view(2); colorbar; colormap jet;
+h = surf(heat_x, fliplr(heat_y), rot90(log10(mse_doa))); view(2); colorbar; colormap jet;
 set(h, 'edgecolor', 'none');
 xlabel('X axis');
 ylabel('Y axis');
