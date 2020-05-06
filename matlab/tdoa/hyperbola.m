@@ -24,9 +24,9 @@ function [ hyp_array ] = hyperbola(doa_meters, rx1, rx2)
     hyp_y_leg2 = zeros(1,1);
     hyp_point_counter = 0;
     
-    if abs(doa_meters/1000) > dist_12
-        disp(['<strong>TODA delay (' num2str(doa_meters) ' meters) larger than RX distance (' num2str(1000*  dist_12) ' meters) -> no solution possible </strong>']);
-        doa_meters = sign(doa_meters) * 0.995 * dist_12 * 1000;
+    if abs(doa_meters) > dist_12
+        disp(['<strong>TDOA delay (' num2str(doa_meters) ' meters) larger than RX distance (' num2str(1000*  dist_12) ' meters) -> no solution possible </strong>']);
+        doa_meters = sign(doa_meters) * 0.995 * dist_12;
         disp(['<strong>ATTENTION: Correcting TODA delay to 0.995 * RX distance (maximum possible value) = ' num2str(0.995*doa_meters) '</strong>']);
     end
         
@@ -34,7 +34,7 @@ function [ hyp_array ] = hyperbola(doa_meters, rx1, rx2)
     if abs(doa_meters) <= dist_12
 
         %for r_1 = (exp(0:0.05:4)-1) / 5
-        for r_1 = 0:0.05:10000
+        for r_1 = 0:5:1000000
             r_2 = r_1 - doa_meters;
             %disp(['r_1 = ' num2str(r_1) ', r_2 = ' num2str(r_2)]);
 
