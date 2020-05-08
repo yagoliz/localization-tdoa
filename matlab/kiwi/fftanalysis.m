@@ -2,10 +2,10 @@
 
 clear all; close all;
 % DCF77
-load('data/dcf77_pre.mat');
+load('data/dcf77_1_pre.mat');
 
 iqdata = input(3).z;
-tdata = input(3).t - tmin(3);
+tdata = input(3).t - input(3).t(1);
 
 fc = input(3).freq;
 freqs = linspace(-6, 6, 512) + fc;
@@ -22,10 +22,10 @@ xlabel('Frequency (kHz)');
 ylabel('Time (s)');
 
 % Both
-load('data/both_pre.mat');
+load('data/dcf77_2_pre.mat');
 
-iqdata = input(2).z;
-tdata = input(2).t - tmin(2);
+iqdata = input(3).z;
+tdata = input(3).t - input(3).t(1);
 
 fc = input(3).freq;
 freqs = linspace(-6, 6, 512) + fc;
