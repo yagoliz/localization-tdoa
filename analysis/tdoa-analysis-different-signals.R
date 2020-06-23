@@ -3,8 +3,8 @@ library(ggplot2)
 
 # Files for data analysis
 folder = "~/Imdea/git/localization/localization-tdoa/matlab/results/"
-signal = "806806"
-num_samples = "500000"
+signal = "196806"
+num_samples = "2000000"
 type = "dphase"
 
 file_original = paste(folder, paste(signal, num_samples, "original", paste(type, ".mat", sep=""), sep="_"), sep="")

@@ -77,7 +77,7 @@ doa_samples_corr_12 = zeros(100,1);
 doa_samples_corr_13 = zeros(100,1);
 doa_samples_corr_23 = zeros(100,1);
 
-for ii = 1:100
+for ii = 1:1
     % We need to read chunk by chunk, otherwise machine will crash
     disp('______________________________________________________________________________________________');
     disp('READ TDOA DATA FROM FILES');

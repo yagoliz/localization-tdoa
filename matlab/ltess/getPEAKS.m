@@ -84,6 +84,7 @@ function [peaksV, peaksL, S, N] = getPEAKS(data, pss_step, search_window, correl
                        
         % Upsampling if it is defined        
         if (resample_factor ~= 1)
+            res_corr(~isfinite(res_corr)) = 0;
             res_corr = resample(res_corr,resample_factor,1);
         end
                                

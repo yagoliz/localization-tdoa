@@ -30,7 +30,7 @@ smoothing_factor = 0;
 
 %% Variable formation
 % IQ Data Files
-folder_identifier = '/home/yago/Imdea/git/localization/localization-tdoa/data/ppm_stability/';
+folder_identifier = '/home/ygglc/Imdea/git/localization/localization-tdoa/data/ppm_stability/';
 
 
 % Frequencies for Reference and Unknown signals

@@ -63,6 +63,9 @@ end
 %% Fang's method
 function [x, y] = exactcomputation(doa_array, sensors)
 
+% x = nan;
+% y = nan;
+
 % The core of this method is that reference is located in (0, 0)
 % The second sensor is located on (b,0)
 % For that we need to rotate the vectors
@@ -111,17 +114,20 @@ if abs(cy) > 1e-3
     else
         if abs(R13) > 1e-3
             x = b/2;
-            d = (cy/R13)^2 - 1;
-            e = cy*(1 + c^2/R13 + 2*cx*x/(R13^2));
-            f = (R13^2/4)*(1-(c/R13)^2)^2 + ((cx/R13)^2-1)*x^2 + cx*(1-(c/R13)^2)*x;
+            alpha = (R13^2 - c^2 + 2*cx*x)/(2*R13);
+            beta = cy/R13;
+            
+            d = beta^2 - 1;
+            e = 2*alpha*beta;
+            f = alpha^2 - x^2;
             
             % Now we obtain the positive term x and y
-            xrotplus = (-e + sqrt(e^2 - 4*d*f))/(2*d);
-            yrotplus = g*xrotplus + h;
+            xrotplus = x;
+            yrotplus = (-e + sqrt(e^2 - 4*d*f))/(2*d);
 
             % Now we obtain the negative term x and y
-            xrotminus = (-e - sqrt(e^2 - 4*d*f))/(2*d);
-            yrotminus = g*xrotminus + h;
+            xrotminus = x;
+            yrotminus = (-e - sqrt(e^2 - 4*d*f))/(2*d);
 
         else 
             % Add it to xrotminus (small trick to only output one value)
@@ -211,6 +217,11 @@ if minusvectorsign == sign(doa_array(1))
         x = xminus;
         y = yminus;
     end
+end
+
+if ~exist('x','var')
+    x = 0;
+    y = 0;
 end
 
 end

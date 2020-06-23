@@ -54,6 +54,13 @@ correlation_value = zeros(3,3,length(filesdev1_tdoa)*3);
 correlation_value_interp = zeros(3,3,length(filesdev1_tdoa)*3);
 
 %% Main loop
+if noppm
+    ppm1 = zeros(length(filesdev1_tdoa),1);
+    ppm2 = ppm1;
+    ppm3 = ppm2;
+else
+    load(fileppm);
+end
 PPM_prev_1 = 0;
 PPM_prev_2 = 0;
 PPM_prev_3 = 0;
@@ -73,7 +80,7 @@ for filenum=1:length(filesdev1_tdoa)
     disp('File 3 Successfully loaded');
 
     %% Local Oscillator Offset correction
-    if lo_correction
+    if lo_correction && noppm
         file1 = filesdev1_ltess(filenum).name;
         file2 = filesdev2_ltess(filenum).name;
         file3 = filesdev3_ltess(filenum).name;
@@ -96,8 +103,10 @@ for filenum=1:length(filesdev1_tdoa)
         fprintf('- Device 1 --> PPM: %f - PPM2: %f\n', PPM, PPM2);
         if isnan(PPM)
             PPM = PPM_prev_1;
+            ppm1(filenum) = PPM_prev_1;
         else
             PPM_prev_1 = PPM;
+            ppm1(filenum) = PPM;
         end
         % Correction of FO and sampling rate
         signal1 = correct_fo(signal1, PPM, sampling_rate_tdoa, fRS, fUS);
@@ -110,8 +119,10 @@ for filenum=1:length(filesdev1_tdoa)
         fprintf('- Device 2 --> PPM: %f - PPM2: %f\n', PPM, PPM2);
         if isnan(PPM)
             PPM = PPM_prev_2;
+            ppm2(filenum) = PPM_prev_2;
         else
             PPM_prev_2 = PPM;
+            ppm2(filenum) = PPM;
         end
         % Correction of FO and sampling rate
         signal2 = correct_fo(signal2, PPM, sampling_rate_tdoa, fRS, fUS);
@@ -123,12 +134,20 @@ for filenum=1:length(filesdev1_tdoa)
         [PPM, PPM2] = ltess(signal3_ltess, sampling_rate_ltess);
         if isnan(PPM)
             PPM = PPM_prev_3;
+            ppm3(filenum) = PPM_prev_3;
         else
             PPM_prev_3 = PPM;
+            ppm3(filenum) = PPM;
         end
         fprintf('- Device 3 --> PPM: %f - PPM2: %f\n', PPM, PPM2);
         % Correction of FO and sampling rate
         signal3 = correct_fo(signal3, PPM, sampling_rate_tdoa, fRS, fUS);
+        
+    elseif lo_correction && ~noppm
+        signal1 = correct_fo(signal1, ppm1(filenum), sampling_rate_tdoa, fRS, fUS);
+        signal2 = correct_fo(signal2, ppm2(filenum), sampling_rate_tdoa, fRS, fUS);
+        signal3 = correct_fo(signal3, ppm3(filenum), sampling_rate_tdoa, fRS, fUS);
+        
     end
 
     %% Calculate TDOA
@@ -153,3 +172,7 @@ for filenum=1:length(filesdev1_tdoa)
 end
 
 save(['results/', results_filename], 'doa_samples', 'doa_meters', 'doa_samples_2', 'doa_meters_2', 'correlation_value', 'correlation_value_interp');
+
+if lo_correction && noppm
+    save('ppmvalsfm', 'ppm1', 'ppm2', 'ppm3');
+end

@@ -2,7 +2,7 @@
 
 clear all; close all;
 % DCF77
-load('data/dcf77_1_pre.mat');
+load('data/dcf77_bw.mat');
 
 iqdata = input(3).z;
 tdata = input(3).t - input(3).t(1);

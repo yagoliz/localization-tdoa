@@ -2,8 +2,8 @@
 #sudo rmmod dvb_usb_rtl28xxu rtl2832
 
 # Iterations
-num_iterations=58
-start_num=142
+num_iterations=200
+start_num=1
 
 if [ "$#" -ne 7 ]; then
   echo "Usage: $0 <directory-of-rtlsdr> <first-frequency (MHz)> <second-frequency (MHz)> <num-samples> <sampling-frequency> <device-num> <output-dir>"
