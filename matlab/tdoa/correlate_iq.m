@@ -24,7 +24,7 @@ function [ iq_corr, lags ] = correlate_iq( iq1, iq2, corr_strategy, max_lag)
 %                 abs_corr = smooth(abs(abs_corr), smoothing_factor);
 %             end
             
-            abs_corr = abs_corr ./ max(abs_corr); %normalize
+%             abs_corr = abs_corr ./ max(abs_corr); %normalize
             iq_corr = abs_corr;
                         
         case 'dphase'
@@ -53,7 +53,8 @@ function [ iq_corr, lags ] = correlate_iq( iq1, iq2, corr_strategy, max_lag)
             iq_corr = d_phase_corr;
             
         case 'iq'
-            [iq_corr, lags] = xcorr(iq1, iq2, max_lag, 'coeff');
+%             [iq_corr, lags] = xcorr(iq1, iq2, max_lag, 'coeff');
+            [iq_corr, lags] = xcorr(iq1, iq2, 'coeff');
             
             iq_corr = iq_corr ./ max(abs(iq_corr));
             

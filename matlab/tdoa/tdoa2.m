@@ -112,6 +112,11 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
         [corr_signal_1_interp, lags1_interp] = correlate_iq(signal11_interp, signal12_interp, corr_type, smoothing_factor);
         [correlation_value_interp(1), idx1_interp_i] = max(abs(corr_signal_1_interp));
         delay1_interp = lags1_interp(idx1_interp_i)/interpol; % >0: signal1 later, <0 signal2 later
+%         corr_signal_1_interp = interp(corr_signal_1,interpol);
+%         lags1_interp = interp(lags1,interpol);
+%         
+%         [correlation_value_interp(1),idx1_interp_i] = max(abs(corr_signal_1_interp));
+%         delay1_interp = lags1_interp(idx1_interp_i);
     else
         delay1_interp = 0;
     end
@@ -163,6 +168,8 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
         signal22_interp = interp(signal22_complex, interpol);
 
         [corr_signal_2_interp, lags2_interp] = correlate_iq(signal12_interp, signal22_interp, corr_type, smoothing_factor);
+%         corr_signal_2_interp = interp(corr_signal_2_valid, interpol);
+%         lags2_interp = interp(lags2,interpol);
        
 %         %truncate to valid area
 %         corr_signal_2_valid_interp = zeros(length(corr_signal_2_interp),1)-1;
@@ -179,6 +186,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
 %         [correlation_value_interp(2), idx2_interp_i] = max(corr_signal_2_valid_interp);
         [correlation_value_interp(2), idx2_interp_i] = max(abs(corr_signal_2_interp));
         delay2_interp = lags2_interp(idx2_interp_i)/interpol; % >0: signal1 later, <0 signal2 later
+%         delay2_interp = lags2_interp(idx2_interp_i);
     else
         delay2_interp = 0;
     end
@@ -206,7 +214,8 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
         signal23_interp = interp(signal23_complex, interpol);
 
         [corr_signal_3_interp, lags3_interp] = correlate_iq(signal13_interp, signal23_interp, corr_type, smoothing_factor);
-        
+%         corr_signal_3_interp = interp(corr_signal_3_valid,interpol);
+%         lags3_interp = interp(lags3,interpol);
         %Truncate to valid area
 %         corr_signal_3_valid_interp = zeros(length(corr_signal_3_interp),1)-1;
 %         corr_signal_3_valid_interp(idx1_interp_i) = corr_signal_3_interp(idx1_interp_i);
@@ -217,6 +226,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
 %         [correlation_value_interp(3), idx3_interp_i] = max(corr_signal_3_valid_interp);
         [correlation_value_interp(3), idx3_interp_i] = max(abs(corr_signal_3_interp));
         delay3_interp = lags3_interp(idx3_interp_i)/interpol;
+%         delay3_interp = lags3_interp(idx3_interp_i);
     else
         delay3_interp = 0;
     end
@@ -255,7 +265,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
             plot(delay1_interp, corr_signal_1_interp(idx1_interp_i), 'dg');
         end
         plot(lags1(idx), corr_signal_1(idx), 'dr');
-        title('Reference Signal (Slice 1)'); legend('Original','Upsampled'); ylim([-0.1 1.1]); xlim([lags1(idx_left) lags1(idx_right)-1]); grid;
+        title('Reference Signal (Slice 1)'); legend('Original','Upsampled'); ylim([-0.1 1.1]); xlim([lags1(idx_left+8) lags1(idx_right)-8]); grid;
 
 
         % Measurement signal

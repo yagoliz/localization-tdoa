@@ -7,7 +7,7 @@ if interpol_factor > 1
 %     iq2 = resample(iq2, interpol_factor, 1);
 end
 
-j = 10000;
+j = 20000;
 m = 200000;
 jump = j * interpol_factor;
 maxValue = m * interpol_factor;
@@ -22,7 +22,8 @@ for i = 1:jump:maxValue-jump+1
     [~,idx] = max(abs(r));
     iqcorrelate12(data) = lags(idx);
     
-    timestamps = [t2(i:i+(j-1))'; t1(i:i+(j-1))'];
+    timestamps = [t2(round(i/interpol_factor)+1:round(i/interpol_factor)+(j-1))'; ...
+        t1(round(i/interpol_factor)+1:round(i/interpol_factor)+(j-1))'];
     corrfactor12(data) = abs(r(idx));
     dt(data) = mean(diff(timestamps));
     data = data + 1;

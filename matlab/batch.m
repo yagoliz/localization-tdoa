@@ -6,6 +6,7 @@
 clear;
 clc;
 close all;
+warning ('off','all');
 
 % adds subfolder with functions to PATH
 [p,n,e] = fileparts(mfilename('fullpath'));
@@ -174,5 +175,5 @@ end
 save(['results/', results_filename], 'doa_samples', 'doa_meters', 'doa_samples_2', 'doa_meters_2', 'correlation_value', 'correlation_value_interp');
 
 if lo_correction && noppm
-    save('ppmvalsfm', 'ppm1', 'ppm2', 'ppm3');
+    save(fileppm, 'ppm1', 'ppm2', 'ppm3');
 end

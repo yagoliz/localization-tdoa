@@ -12,17 +12,24 @@ close all;
 addpath([p '/tdoa']);
 addpath([p '/kiwi/m/']);
 
+%% Data
+load(['kiwi/data/dcf77_1_pre.mat']);
+
 %% Constants
 % Earth Radius
 R = 6371;
 c = 299792.458 * 1e3;
 
 % Sensor coordinates
-sensors = [52.4862, 13.4761;...
-           46.1700, 14.3000;...
-           45.7793,  0.6146];
+% sensors = [52.4862, 13.4761;...
+%            46.1700, 14.3000;...
+%            45.7793,  0.6146];
+       
+sensors = [input(1).coord; input(2).coord; input(3).coord];
        
 dcf77 = [50.01556, 9.01083];
+% dcf77 = [52.296667, -2.105278];
+
 
 % Get distances from transmitter to sensor
 sensorDistances = zeros(3,1);
@@ -38,13 +45,14 @@ tdoaTheory = tdoaTheory ./ c;
 tdoaTheorySamples = tdoaTheory * 12e3;
 
 %% Loop
-correlations = zeros(30,3);
-errors = zeros(30,1);
-errors1 = zeros(30,1);
-errors2 = zeros(30,1);
-errors3 = zeros(30,1);
+numfiles = 30;
+correlations = zeros(numfiles,3);
+errors = zeros(numfiles,1);
+errors1 = zeros(numfiles,1);
+errors2 = zeros(numfiles,1);
+errors3 = zeros(numfiles,1);
 
-for ii = 1:30
+for ii = 1:numfiles
     % Load the config
     load(['kiwi/data/dcf77_', num2str(ii), '_pre.mat']);
     input = alignInputs(input);
@@ -98,7 +106,7 @@ for ii = 1:30
 
     %% Process tdoa for sensor pairs
     [doa12, iqcorrelate12, corrfactor12, dt12] = tdoa_kiwi(iqsignal1, t1, iqsignal2, t2, mean([fs1,fs2]), 1, 'iq');
-    [doa13, iqcorrelate13, corrfactor13, dt13] = tdoa_kiwi(iqsignal1, t1, iqsignal3, t2, mean([fs1,fs3]), 1, 'iq');
+    [doa13, iqcorrelate13, corrfactor13, dt13] = tdoa_kiwi(iqsignal1, t1, iqsignal3, t3, mean([fs1,fs3]), 1, 'iq');
     [doa23, iqcorrelate23, corrfactor23, dt23] = tdoa_kiwi(iqsignal2, t2, iqsignal3, t3, mean([fs2,fs3]), 1, 'iq');
     
     correlations(ii,1) = doa12 / 12;

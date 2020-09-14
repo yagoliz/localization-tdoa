@@ -1,0 +1,19 @@
+{
+"transmitters": {
+    "reference": {
+        "coord": [40.397561, -3.788117],
+        "freq": 610.0
+    },
+    "unknown": {
+        "coord": [40.420570, -3.664179],
+        "freq": 218.3
+        }
+},
+"sensors": [
+    {"name": "Albentia", "coordinates": [40.352848219260316,-3.741692304611206], "serial": 202481587650396},
+    {"name": "monteleon", "coordinates": [40.430469,-3.704428], "serial": 202481588740831},
+    {"name": "Alcorcon1", "coordinates": [40.34341760956179,-3.8443885452579707], "serial": 202481597653280},
+    {"name": "madrid_city_1", "coordinates": [40.39972003205393,-3.706653225235641], "serial": 202481596393530},
+    {"name": "Vistalegre_neighborhood", "coordinates": [40.388809277543224,-3.7392480990314425], "serial": 202481597384432}
+]
+}
