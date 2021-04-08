@@ -1,6 +1,6 @@
-function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_value, correlation_value_interp ] = ... 
+function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_value, correlation_value_interp, keep] = ... 
     tdoa2(signal1_complex, signal2_complex, num_samples_per_freq, num_samples_per_slice, sample_rate, rx_distance_diff, ...
-    rx_distance, smoothing_factor, corr_type,  report_level, signal_bandwidth_khz, interpol)
+    max_lag, corr_type,  report_level, signal_bandwidth_khz, interpol)
 
     % tdoa2 calculates the TDOA of two signals captured by two RXs
     %	output:
@@ -33,7 +33,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
 
 %     num_samples_per_freq = 4e6;
 %     num_samples_per_slice = 1.2e6;
-    guard_interval = 50e3; % time to switch to a new frequency, fixed, empirically determined
+    guard_interval = 2e5; % time to switch to a new frequency, fixed, empirically determined
 %     sample_rate = 2e6;  % in Hz
 
     signal11_complex = signal1_complex(1                                       : num_samples_per_slice);
@@ -97,7 +97,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
     signal21_complex = filter_iq(signal21_complex, signal_bandwidth_khz);
     
     % native
-    [corr_signal_1, lags1] = correlate_iq(signal11_complex, signal21_complex, corr_type, smoothing_factor);
+    [corr_signal_1, lags1] = correlate_iq(signal11_complex, signal21_complex, corr_type, max_lag);
 %     corr1_reliability = corr_reliability( corr_signal_1 );
 
     [correlation_value(1), idx1] = max(abs(corr_signal_1));
@@ -109,7 +109,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
         signal11_interp = interp(signal11_complex, interpol);
         signal12_interp = interp(signal21_complex, interpol);
     
-        [corr_signal_1_interp, lags1_interp] = correlate_iq(signal11_interp, signal12_interp, corr_type, smoothing_factor);
+        [corr_signal_1_interp, lags1_interp] = correlate_iq(signal11_interp, signal12_interp, corr_type, max_lag);
         [correlation_value_interp(1), idx1_interp_i] = max(abs(corr_signal_1_interp));
         delay1_interp = lags1_interp(idx1_interp_i)/interpol; % >0: signal1 later, <0 signal2 later
 %         corr_signal_1_interp = interp(corr_signal_1,interpol);
@@ -139,7 +139,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
     
     
     %% Correlation for slice 2 (measure)
-    [corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type, smoothing_factor);
+    [corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type, max_lag);
     
     %truncate to valid area
 %     corr_signal_2_valid = zeros(length(corr_signal_2),1)-1;
@@ -167,7 +167,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
         signal12_interp = interp(signal12_complex, interpol);
         signal22_interp = interp(signal22_complex, interpol);
 
-        [corr_signal_2_interp, lags2_interp] = correlate_iq(signal12_interp, signal22_interp, corr_type, smoothing_factor);
+        [corr_signal_2_interp, lags2_interp] = correlate_iq(signal12_interp, signal22_interp, corr_type, max_lag);
 %         corr_signal_2_interp = interp(corr_signal_2_valid, interpol);
 %         lags2_interp = interp(lags2,interpol);
        
@@ -199,7 +199,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
     signal23_complex = filter_iq(signal23_complex, signal_bandwidth_khz);
     
     
-    [corr_signal_3, lags3] = correlate_iq(signal13_complex, signal23_complex, corr_type, smoothing_factor);
+    [corr_signal_3, lags3] = correlate_iq(signal13_complex, signal23_complex, corr_type, max_lag);
 %     corr3_reliability = corr_reliability(corr_signal_3);
 %     corr_signal_3_valid = zeros(length(corr_signal_3),1) - 1;
 %     corr_signal_3_valid(idx1-valid_samples_left-3:idx1+valid_samples_right+3) = corr_signal_3(idx1-valid_samples_left-3:idx1+valid_samples_right+3);
@@ -213,7 +213,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
         signal13_interp = interp(signal13_complex, interpol);
         signal23_interp = interp(signal23_complex, interpol);
 
-        [corr_signal_3_interp, lags3_interp] = correlate_iq(signal13_interp, signal23_interp, corr_type, smoothing_factor);
+        [corr_signal_3_interp, lags3_interp] = correlate_iq(signal13_interp, signal23_interp, corr_type, max_lag);
 %         corr_signal_3_interp = interp(corr_signal_3_valid,interpol);
 %         lags3_interp = interp(lags3,interpol);
         %Truncate to valid area
@@ -335,6 +335,9 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
 %             avg_delay13 = delay3;
 %             disp(['<strong>taking ref with higher reliability, i.e. ref check (reliability: ' num2str(corr1_reliability) '(ref) < ' num2str(corr3_reliability) '(ref check) </strong>']);
 %         end
+        keep = false;
+    else
+        keep = true;
     end
     avg_delay13 = (delay1 + delay3) / 2; % Assuming delay1 is 0
     
@@ -362,7 +365,7 @@ function [ doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_val
 
         disp(['specified distance difference to ref tx [m]: ' int2str(rx_distance_diff)]);
         disp(['specified distance difference to ref tx [samples]: ' num2str(ref_signal_diff_samples)]);
-        disp(['specified distance between two RXes [m]: ' num2str(rx_distance)]);
+        %disp(['specified distance between two RXes [m]: ' num2str(rx_distance)]);
         disp(' ');
 
         disp('FINAL RESULT');

@@ -152,7 +152,7 @@ function [inputAli, minLength] = alignInputs(input)
         endt(ii) = input(ii).t(end);
         
     end
-    t0 = max(startt);
+    t0 max(startt);
     t1 = min(endt);
 
     minLength = inf;

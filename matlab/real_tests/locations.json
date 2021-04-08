@@ -1,10 +1,10 @@
 {
 "transmitters": {
-    "reference": {
+    "unknown": {
         "coord": [40.397561, -3.788117],
         "freq": 610.0
     },
-    "unknown": {
+    "reference": {
         "coord": [40.420570, -3.664179],
         "freq": 218.3
         }

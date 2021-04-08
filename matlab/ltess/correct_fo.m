@@ -10,7 +10,7 @@ Ts = 1/samplingRate;
 phi = PPM * 1e-6;
 t = 0:Ts/(1+phi):Ts/(1+phi)*(length(signal) - 1);
 % t = 0:Ts:Ts*(length(signal) - 1);
-chunk_length = length(signal)/3;
+chunk_length = round(length(signal)/3);
 
 % First chunk correction
 reference_chunk = signal(1 : chunk_length);
