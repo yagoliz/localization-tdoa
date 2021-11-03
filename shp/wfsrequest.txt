@@ -1,0 +1,1 @@
+https://idem.madrid.org:443/geoidem/SistemasCuadriculas/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=SistemasCuadriculas:SIGI_URB_HOJAS_10000&outputFormat=SHAPE-ZIP

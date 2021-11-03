@@ -1,7 +1,7 @@
 %% Config File for TDOA setup
 
 % Variables for composing
-tx_type = 'gsm';
+tx_type = 'dvbt';
 if strcmp(tx_type, 'dvbt')
     fRS_MHz = 627;
 elseif strcmp(tx_type, 'dab')
@@ -10,7 +10,7 @@ elseif strcmp(tx_type, 'gsm')
     fRS_MHz = 932;
 end
 
-us_type = 'dab';
+us_type = 'gsm';
 if strcmp(us_type, 'dvbt')
     fUS_MHz = 627;
 elseif strcmp(us_type, 'dab')
@@ -23,7 +23,7 @@ end
 
 lo_correction = true;
 compute_ppm = false;
-fileppm = ['ppm_rs_', tx_type, '_us_', us_type];
+fileppm = ['ppm/', 'ppm_rs_', tx_type, '_us_', us_type];
 interpol_factor = 10;
 corr_type = 'dphase';
 

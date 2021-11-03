@@ -178,7 +178,7 @@ if exist('xrotplus','var')
     yplus = resultplus(2) + sensors(1,2);
 
     % We check the doa and see if the sign is equal to the doa_array
-    plusvector = [xplus, yplus];
+    plusvector = [real(xplus), real(yplus)];
     plusvectornorm = norm(plusvector - sensors(1,:)) - norm(plusvector - sensors(2,:));
     
     if abs(plusvectornorm) < 1e-3
@@ -200,7 +200,7 @@ xminus = resultminus(1) + sensors(1,1);
 yminus = resultminus(2) + sensors(1,2);
 
 % We check the doa and see if the sign is equal to the doa_array
-minusvector = [xminus, yminus];
+minusvector = [real(xminus), real(yminus)];
 minusvectornorm = norm(minusvector - sensors(1,:)) - norm(minusvector - sensors(2,:));
 
 if abs(minusvectornorm) < 1e-3

@@ -1,5 +1,4 @@
-function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, combinations, resolution)
-%create_heatmap_kl Creates a heatmap for based on mean squared error
+function [point_x, point_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, combinations, resolution)
 
 %    returns: 
 %    heat_long: longitudes of heatmap points
@@ -7,7 +6,7 @@ function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, co
 %    mse_doa: heatmap magnitudes
 
     if nargin == 7
-       resolution = 1000; 
+       resolution = 100; 
     end
 
     disp('creating heatmap... ');
@@ -25,7 +24,9 @@ function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, co
     % create heatmap
     heat_x  = linspace(xmin,  xmax,  num_points);
     heat_y = linspace(ymin, ymax, num_points);
-    mse_doa = zeros(num_points, num_points);
+    point_x = zeros(num_points);
+    point_y = zeros(num_points);
+    mse_doa = zeros(num_points);
     
     for idx = 1:num_points
         for idy = 1:num_points
@@ -44,6 +45,8 @@ function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, co
             
             % error doa
             doa_error = sum((current_doa - doa_meters).^2);
+            point_x(idx, idy) = heat_x(idx);
+            point_y(idx, idy) = heat_y(idy);
             mse_doa(idx, idy) = doa_error;
         end
     end
@@ -52,4 +55,7 @@ function [heat_x, heat_y, mse_doa ] = heatmap(doa_meters, rx, xrange, yrange, co
     mse_doa = mse_doa .* (1/max(max(mse_doa)));
    
     disp('creating heatmap done! ');
+    point_x = point_x(:);
+    point_y = point_y(:);
+    mse_doa = mse_doa(:);
 end

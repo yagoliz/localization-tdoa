@@ -135,8 +135,10 @@ for filenum=1:length(filesdev1_tdoa)
 %         signal3 = correct_fo(signal3, PPM, sampling_rate_tdoa, fRS, fUS);
         
     elseif lo_correction && ~compute_ppm
-        signal1 = correct_fo(signal1, ppm1(filenum), sampling_rate_tdoa, fRS, fUS);
-        signal2 = correct_fo(signal2, ppm2(filenum), sampling_rate_tdoa, fRS, fUS);
+        signal1 = interp(signal1, interpol_factor);
+        signal2 = interp(signal2, interpol_factor);
+        signal1 = correct_fo(signal1, ppm1(filenum), sampling_rate_tdoa*interpol_factor, fRS, fUS);
+        signal2 = correct_fo(signal2, ppm2(filenum), sampling_rate_tdoa*interpol_factor, fRS, fUS);
 %         signal3 = correct_fo(signal3, ppm3(filenum), sampling_rate_tdoa, fRS, fUS);
         
     end
@@ -146,7 +148,7 @@ for filenum=1:length(filesdev1_tdoa)
     disp('______________________________________________________________________________________________');
     disp('CORRELATION 1 & 2');
     [doa_meters(filenum), doa_samples(filenum), doa_meters_2(filenum), doa_samples_2(filenum), correlation_value(filenum,:), correlation_value_interp(filenum,:)] = ...
-        tdoa2(signal1, signal2, num_samples_per_freq, num_samples_per_slice, sampling_rate_tdoa, 0, smoothing_factor, corr_type, report_level, signal_bandwidth_khz, interpol_factor);
+        tdoa2_test(signal1, signal2, num_samples_per_freq, num_samples_per_slice, sampling_rate_tdoa, 0, smoothing_factor, corr_type, report_level, signal_bandwidth_khz, interpol_factor);
 
 %     disp(' ');
 %     disp('______________________________________________________________________________________________');
@@ -159,9 +161,9 @@ for filenum=1:length(filesdev1_tdoa)
 %     disp('CORRELATION 2 & 3');
 %     [doa_meters(filenum*3), doa_samples(filenum*3), doa_meters_2(filenum*3), doa_samples_2(filenum*3), correlation_value(3,:,filenum), correlation_value_interp(3,:,filenum)] = ...
 %         tdoa2(signal2, signal3, num_samples_per_freq, num_samples_per_slice, sampling_rate_tdoa, 0, smoothing_factor, corr_type, report_level, signal_bandwidth_khz, interpol_factor);
-    end
+end
 
-save(['results/', results_filename], 'doa_samples', 'doa_meters', 'doa_samples_2', 'doa_meters_2', 'correlation_value', 'correlation_value_interp');
+save(['results/', results_filename,'_modif'], 'doa_samples', 'doa_meters', 'doa_samples_2', 'doa_meters_2', 'correlation_value', 'correlation_value_interp');
 
 if lo_correction && compute_ppm
     save(['ppm/',fileppm], 'ppm1', 'ppm2');

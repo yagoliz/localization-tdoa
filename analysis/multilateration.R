@@ -2,7 +2,7 @@ library(R.matlab)
 library(ggplot2)
 
 # Files for data analysis
-folder = "~/Imdea/git/localization/localization-tdoa/matlab/results_mlat/"
+folder = "~/desktop/phd/research/localization/core/localization-tdoa/matlab/results_mlat/"
 
 ## IQ vs ABS
 file_iq   = paste(folder, "iq1.mat" , sep="")

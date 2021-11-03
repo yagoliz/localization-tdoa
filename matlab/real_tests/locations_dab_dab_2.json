@@ -1,0 +1,78 @@
+{
+    "transmitters": {
+        "unknown": {
+            "coord": [
+                40.42057,
+                -3.664179
+            ],
+            "height": 600.0,
+            "freq": 208.0
+        },
+        "reference": {
+            "coord": [
+                40.42057,
+                -3.664179
+            ],
+            "height": 600.0,
+            "freq": 196.0
+        }
+    },
+    "sensors": [
+        {
+            "serial": 202481593109723,
+            "name": "rack_1",
+            "coordinates": [
+                40.337,
+                -3.7704
+            ],
+            "height": 600.0
+        },
+        {
+            "serial": 202481591991736,
+            "name": "chamberi",
+            "coordinates": [
+                40.4345,
+                -3.7134
+            ],
+            "height": 600.0
+        },
+        {
+            "serial": 202481596393530,
+            "name": "madrid_city_1",
+            "coordinates": [
+                40.3997,
+                -3.7067
+            ],
+            "height": 600.0
+        },
+        {
+            "serial": 202481586984579,
+            "name": "Alcorcon1",
+            "coordinates": [
+                40.3434,
+                -3.8444
+            ],
+            "height": 600.0
+        },
+        {
+            "serial": 202481587650396,
+            "name": "URJC1",
+            "coordinates": [
+                40.2832,
+                -3.8215
+            ],
+            "height": 600.0
+        }
+    ],
+    "config": {
+        "samples_per_slice": 1000000,
+        "sample_rate": 2000000,
+        "corr_method": "dphase",
+        "files_per_sensor": 1,
+        "folder_date": "20211024",
+        "correct": true,
+        "interp": 1,
+        "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",
+        "sample_rate_ltess": 1920000
+    }
+}

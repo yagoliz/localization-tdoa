@@ -1,5 +1,5 @@
 function [ lat, long ] = xy2latlong( x, y, ref_lat, ref_long )
-% converts cartesian coordinates x,y (in km) to lat/long
+% converts cartesian coordinates x,y (in m) to lat/long
 % ref_lat and ref_long is the geodetic reference point for plane approximation of the earth surface
 
 earth_circumf = 40074*1e3;

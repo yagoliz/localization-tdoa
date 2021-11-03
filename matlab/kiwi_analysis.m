@@ -54,7 +54,8 @@ errors3 = zeros(numfiles,1);
 
 for ii = 1:numfiles
     % Load the config
-    load(['kiwi/data/dcf77_', num2str(ii), '_pre.mat']);
+%     load(['kiwi/data/dcf77_', num2str(ii), '_pre.mat']);
+    load(['kiwi/data/tdf_',num2str(ii),'.mat']);
     input = alignInputs(input);
 
     %% Position of the sensors

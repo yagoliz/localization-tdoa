@@ -12,8 +12,8 @@ function [ hyp_array ] = hyperbola(doa_meters, rx1, rx2)
     rx_x_dist = rx2_x - rx1_x;
     rx_y_dist = rx2_y - rx1_y;
 
-    dist_12 = abs (rx_x_dist+i*rx_y_dist);  % positions in complex plane
-    angle_12 = angle (rx_x_dist+i*rx_y_dist); % -pi to +pi
+    dist_12 = abs (rx_x_dist+1i*rx_y_dist);  % positions in complex plane
+    angle_12 = angle (rx_x_dist+1i*rx_y_dist); % -pi to +pi
 
     hyp_x = zeros(1,1);
     hyp_y = zeros(1,1);
@@ -25,7 +25,7 @@ function [ hyp_array ] = hyperbola(doa_meters, rx1, rx2)
     hyp_point_counter = 0;
     
     if abs(doa_meters) > dist_12
-        disp(['<strong>TDOA delay (' num2str(doa_meters) ' meters) larger than RX distance (' num2str(1000*  dist_12) ' meters) -> no solution possible </strong>']);
+        disp(['<strong>TDOA delay (' num2str(doa_meters) ' meters) larger than RX distance (' num2str(dist_12) ' meters) -> no solution possible </strong>']);
         doa_meters = sign(doa_meters) * 0.995 * dist_12;
         disp(['<strong>ATTENTION: Correcting TODA delay to 0.995 * RX distance (maximum possible value) = ' num2str(0.995*doa_meters) '</strong>']);
     end
@@ -62,7 +62,7 @@ function [ hyp_array ] = hyperbola(doa_meters, rx1, rx2)
 
         end
     else
-        disp('TODA delay larger than RX distance -> no solution possible');
+        disp('TDOA delay larger than RX distance -> no solution possible');
     end
     
     if (hyp_point_counter == 0)
