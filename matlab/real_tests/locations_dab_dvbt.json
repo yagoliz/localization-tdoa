@@ -58,7 +58,7 @@
     "config": {
         "samples_per_slice": 800000,
         "sample_rate": 2400000,
-        "files_per_sensor": 1,
+        "filenum": 1,
         "folder_date": "20211025",
         "correct": false,
         "interp": 1,

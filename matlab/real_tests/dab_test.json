@@ -65,13 +65,14 @@
     }
   ],
   "config": {
-    "samples_per_slice": 8000000,
+    "samples_per_slice": 1000000,
     "sample_rate": 2400000,
-    "files_per_sensor": 1,
-    "folder_date": "20211025",
-    "correct": false,
+    "filenum": 4,
+    "folder_date": "20211028",
+    "correct": true,
     "interp": 1,
     "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",
-    "sample_rate_ltess": 1920000
+    "sample_rate_ltess": 1920000,
+    "corr_method": "abs"
   }
 }

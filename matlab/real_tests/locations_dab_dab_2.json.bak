@@ -68,7 +68,7 @@
         "samples_per_slice": 1000000,
         "sample_rate": 2000000,
         "corr_method": "dphase",
-        "filenum": 2,
+        "files_per_sensor": 2,
         "folder_date": "20211029",
         "correct": true,
         "interp": 1,

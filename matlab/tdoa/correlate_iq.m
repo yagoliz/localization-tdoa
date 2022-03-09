@@ -31,11 +31,13 @@ function [ iq_corr, lags ] = correlate_iq( iq1, iq2, corr_strategy, max_lag)
             d_phase1 = diff(unwrap(angle(iq1)));
             d_phase2 = diff(unwrap(angle(iq2)));
             
-%             d_phase1 = [ 0; d_phase1(1:length(d_phase1)) ];  % append a zero to match the length of the abs correlation (size fit)
-%             d_phase2 = [ 0; d_phase2(1:length(d_phase2)) ];
+            d_phase1 = [ 0; d_phase1(1:length(d_phase1)) ];  % append a zero to match the length of the abs correlation (size fit)
+            d_phase2 = [ 0; d_phase2(1:length(d_phase2)) ];
 
-            d_phase1 = remove_mean(d_phase1);
-            d_phase2 = remove_mean(d_phase2);        
+%             d_phase1 = remove_mean(d_phase1);
+%             d_phase2 = remove_mean(d_phase2);
+            d_phase1 = detrend(d_phase1);
+            d_phase2 = detrend(d_phase2);
             
 %             [d_phase_corr, lags] = xcorr(d_phase1, d_phase2, max_lag, 'coeff');
             [d_phase_corr, lags] = xcorr(d_phase1, d_phase2, 'coeff');

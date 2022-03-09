@@ -21,7 +21,7 @@
         "samples_per_slice": 1000000,
         "sample_rate": 2000000,
         "sample_rate_ltess": 1920000,
-        "filenum": 1,
+        "files_per_sensor": 1,
         "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",
         "correct": true,
         "interp": 5,

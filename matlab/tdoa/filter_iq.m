@@ -54,6 +54,30 @@ function [ signal_iq_filtered ] = filter_iq( signal_iq, signal_bandwidth_khz )
             signal_iq_filtered = filter(Hd, signal_iq);
             disp('Signal filtered to 200 kHz');
 
+        case 100
+            % Equiripple Lowpass filter designed using the FIRPM function.
+            % f_pass = 200 kHz, f_stop = 300 kHz, Apass = 0.1, Astop = 60
+
+            % All frequency values are in kHz.
+            Fs = 2000;  % Sampling Frequency
+
+            Fpass = 100;              % Passband Frequency
+            Fstop = 150;              % Stopband Frequency
+            Dpass = 0.0057563991496;  % Passband Ripple
+            Dstop = 0.001;            % Stopband Attenuation
+            dens  = 20;               % Density Factor
+
+            % Calculate the order from the parameters using FIRPMORD.
+            [N, Fo, Ao, W] = firpmord([Fpass, Fstop]/(Fs/2), [1 0], [Dpass, Dstop]);
+
+            % Calculate the coefficients using the FIRPM function.
+            b  = firpm(N, Fo, Ao, W, {dens});
+            Hd = dfilt.dffir(b);
+            
+            %filter
+            signal_iq_filtered = filter(Hd, signal_iq);
+            disp('Signal filtered to 100 kHz');
+
         case 40     
             % Equiripple Lowpass filter designed using the FIRPM function.
             % f_pass = 20 kHz, f_stop = 100 kHz, Apass = 0.1, Astop = 60

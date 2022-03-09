@@ -6,7 +6,7 @@
                 -3.664179
             ],
             "height": 600.0,
-            "freq": 208.0
+            "freq": 623.0
         },
         "reference": {
             "coord": [
@@ -53,27 +53,16 @@
                 -3.8444
             ],
             "height": 600.0
-        },
-        {
-            "serial": 202481587650396,
-            "name": "URJC1",
-            "coordinates": [
-                40.2832,
-                -3.8215
-            ],
-            "height": 600.0
         }
     ],
     "config": {
-        "samples_per_slice": 1000000,
-        "sample_rate": 2000000,
-        "corr_method": "dphase",
-        "filenum": 2,
-        "folder_date": "20211029",
-        "correct": true,
+        "samples_per_slice": 800000,
+        "sample_rate": 2400000,
+        "files_per_sensor": 1,
+        "folder_date": "20211025",
+        "correct": false,
         "interp": 1,
         "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",
-        "sample_rate_ltess": 1920000,
-        "generate_hyperbola": false
+        "sample_rate_ltess": 1920000
     }
 }

@@ -12,11 +12,8 @@ function [ points_lat, points_long ] = gen_hyperbola( doa_meters, rx1_lat, rx1_l
     rx_x_dist = rx2_x - rx1_x;
     rx_y_dist = rx2_y - rx1_y;
 
-    dist_12 = abs (rx_x_dist+i*rx_y_dist);  % positions in complex plane
-    angle_12 = angle (rx_x_dist+i*rx_y_dist); % -pi to +pi
-
-    hyp_x = zeros(1,1);
-    hyp_y = zeros(1,1);
+    dist_12 = abs (rx_x_dist+1i*rx_y_dist);  % positions in complex plane
+    angle_12 = angle (rx_x_dist+1i*rx_y_dist); % -pi to +pi
 
     hyp_x_leg1 = zeros(1,1);
     hyp_y_leg1 = zeros(1,1);
@@ -24,18 +21,18 @@ function [ points_lat, points_long ] = gen_hyperbola( doa_meters, rx1_lat, rx1_l
     hyp_y_leg2 = zeros(1,1);
     hyp_point_counter = 0;
     
-    if abs(doa_meters/1000) > dist_12
-        disp(['<strong>TODA delay (' num2str(doa_meters) ' meters) larger than RX distance (' num2str(1000*  dist_12) ' meters) -> no solution possible </strong>']);
-        doa_meters = sign(doa_meters) * 0.995 * dist_12 * 1000;
+    if abs(doa_meters) > dist_12
+        disp(['<strong>TODA delay (' num2str(doa_meters) ' meters) larger than RX distance (' num2str(dist_12) ' meters) -> no solution possible </strong>']);
+        doa_meters = sign(doa_meters) * 0.995 * dist_12;
         disp(['<strong>ATTENTION: Correcting TODA delay to 0.995 * RX distance (maximum possible value) = ' num2str(0.995*doa_meters) '</strong>']);
     end
         
         
-    if abs(doa_meters/1000) <= dist_12
+    if abs(doa_meters) <= dist_12
 
         %for r_1 = (exp(0:0.05:4)-1) / 5
         for r_1 = 0:0.05:10
-            r_2 = r_1 - doa_meters/1000;
+            r_2 = r_1 - doa_meters;
             %disp(['r_1 = ' num2str(r_1) ', r_2 = ' num2str(r_2)]);
 
             if ((r_2 + r_1) > dist_12)  % checks if triangle can be created
