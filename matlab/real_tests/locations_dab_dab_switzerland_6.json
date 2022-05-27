@@ -1,0 +1,34 @@
+{
+    "transmitters": {
+        "reference": {
+            "coord": [47.31217786122135, 8.50554335764534],
+            "height": 563,
+            "freq": 208,
+            "bw": 1e6
+        },
+        "unknown": {
+            "coord": [47.351400190165414, 8.490228107569658],
+            "height": 771,
+            "freq": 194.0,
+            "bw": 1e6
+            }
+    },
+    "sensors": [
+        {"name": "dshush_2", "coordinates": [47.303061992474454,8.446453799223256], "height": 529, "serial": 202481588426833},
+        {"name": "alemino_ZRH", "coordinates": [47.423072098283455,8.53982950921636], "height": 474, "serial": 202481601716927},
+	    {"name": "ETHZ_ETZ_Dach", "coordinates": [47.377786432692126,8.55254137129964], "height": 474, "serial": 202481593053745}
+    ],
+    "config": {
+        "samples_per_slice": 1000000,
+        "bw_rs": 0,
+        "bw_us": 0,
+        "corr_method": "dphase",
+        "sample_rate": 2000000,
+        "sample_rate_ltess": 1920000,
+        "filenum": 1,
+        "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",
+        "correct": true,
+        "interp": 5,
+        "folder_date": "20220616"
+    }
+}

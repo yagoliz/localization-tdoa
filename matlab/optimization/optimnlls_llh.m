@@ -1,4 +1,4 @@
-function F = optimnlls_llh(X,doa,sensors,combinations,keep)
+function F = optimnlls_llh(X,doa,sensors,combinations)
     lat = X(1);
     lon = X(2);
     
@@ -14,5 +14,5 @@ function F = optimnlls_llh(X,doa,sensors,combinations,keep)
         t(ii) = (d(si) - d(sj))*1000;
     end
     
-    F = (doa(keep) - t(keep));
+    F = (doa - t);
 end

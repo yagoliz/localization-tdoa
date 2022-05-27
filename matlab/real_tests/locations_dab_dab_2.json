@@ -18,57 +18,69 @@
         }
     },
     "sensors": [
-        {
-            "serial": 202481593109723,
-            "name": "rack_1",
-            "coordinates": [
-                40.337,
-                -3.7704
-            ],
-            "height": 600.0
-        },
-        {
-            "serial": 202481591991736,
-            "name": "chamberi",
-            "coordinates": [
-                40.4345,
-                -3.7134
-            ],
-            "height": 600.0
-        },
-        {
-            "serial": 202481596393530,
-            "name": "madrid_city_1",
-            "coordinates": [
-                40.3997,
-                -3.7067
-            ],
-            "height": 600.0
-        },
-        {
-            "serial": 202481586984579,
-            "name": "Alcorcon1",
-            "coordinates": [
-                40.3434,
-                -3.8444
-            ],
-            "height": 600.0
-        },
-        {
-            "serial": 202481587650396,
-            "name": "URJC1",
-            "coordinates": [
-                40.2832,
-                -3.8215
-            ],
-            "height": 600.0
-        }
+    {
+      "serial": 202481593109723,
+      "name": "rack_1",
+      "coordinates": [
+        40.337,
+        -3.7704
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481591991736,
+      "name": "chamberi",
+      "coordinates": [
+        40.4345,
+        -3.7134
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481596393530,
+      "name": "madrid_city_1",
+      "coordinates": [
+        40.3997,
+        -3.7067
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481586984579,
+      "name": "Alcorcon1",
+      "coordinates": [
+        40.3434,
+        -3.8444
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481587650396,
+      "name": "URJC1",
+      "coordinates": [
+        40.2832,
+        -3.8215
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481589193614,
+      "name": "mad_princesa",
+      "coordinates": [
+        40.43515,
+        -3.6742
+      ],
+      "height": 600
+    }
     ],
     "config": {
         "samples_per_slice": 1000000,
+        "bw_rs": 0,
+        "bw_us": 0,
+        "use_lte": true,
         "sample_rate": 2000000,
-        "corr_method": "dphase",
-        "filenum": 2,
+        "corr_method": "abs",
+        "filenum": 1,
         "folder_date": "20211029",
         "correct": true,
         "interp": 1,

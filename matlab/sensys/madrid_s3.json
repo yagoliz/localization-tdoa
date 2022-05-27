@@ -1,0 +1,54 @@
+{
+    "transmitters": {
+        "unknown": {
+            "coord": [40.420570, -3.664179],
+            "height": 600,
+            "freq": 208.0
+        },
+        "reference": {
+            "coord": [40.420570, -3.664179],
+            "height": 600,
+            "freq": 196.0
+            }
+    },
+    "sensors": [
+    {
+      "serial": 202481593109723,
+      "name": "rack_1",
+      "coordinates": [
+        40.337,
+        -3.7704
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481589193614,
+      "name": "mad_princesa",
+      "coordinates": [
+        40.43515,
+        -3.6742
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481591991736,
+      "name": "chamberi",
+      "coordinates": [
+        40.4345,
+        -3.7134
+      ],
+      "height": 600
+    }
+    ],
+    "config": {
+        "samples_per_slice": 1000000,
+        "sample_rate": 2000000,
+        "sample_rate_ltess": 1920000,
+        "filenum": 1,
+        "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",
+        "correct": true,
+        "interp": 5,
+        "folder_date": "20211028",
+        "corr_method": "abs"
+    }
+}

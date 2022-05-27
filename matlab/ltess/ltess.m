@@ -1,5 +1,12 @@
 %% Calculate the Local Oscillator (LO) offset for a given chunk of data
-function [PPM, PPM2, PSS_percent] = ltess(chunk, sampling_rate)
+function [PPM, PPM2, PSS_percent] = ltess(chunk, sampling_rate, center_freq)
+
+% We might get data from a different center freq
+if nargin == 2
+    center_freq = 806e6;
+end
+
+
 % Configuration parameters
 RESAMPLE_FACTOR = 60;
 PSS_STEP = 9600;
@@ -19,7 +26,7 @@ fprintf('Zadoof adaptation --> PPM: %f [%f] - PSS detected: %f\n', PPM, PPM2, PS
 
 % Second run
 T_s = 1/sampling_rate;
-delta_f=(PPM*1e-6)*806e6;
+delta_f=(PPM*1e-6)*center_freq;
 Z_t_rotated = {};
 Z_t_rotated{1} = Z_t{1}.*exp(-1i*2*pi*T_s*delta_f*(1:length(Z_t{1}))');
 Z_t_rotated{2} = Z_t{2}.*exp(-1i*2*pi*T_s*delta_f*(1:length(Z_t{2}))');

@@ -34,7 +34,7 @@ function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_valu
 
 %   Constants for our tdoa estimation
     guard_interval = 3e5; % time to switch to a new frequency, fixed, empirically determined
-    peak_find = 10;
+    peak_find = round(max_lag);
 
 %     Signal preparation
     signal11_complex = signal1_complex(guard_interval                          : num_samples_per_slice - 1);
@@ -73,7 +73,7 @@ function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_valu
         corr_signal_1_interp = interp1(lags1(idx1-peak_find:idx1+peak_find),...
                                       corr_signal_1(idx1-peak_find:idx1+peak_find),...
                                       lags1_interp,...
-                                      "spline");
+                                      "makima");
 %        [correlation_value_interp(1),idx1_interp] = max(abs(corr_signal_1_interp));
         [correlation_value_interp(1),idx1_interp] = max(abs(corr_signal_1_interp));
         delay1_interp = lags1_interp(idx1_interp);
@@ -117,7 +117,7 @@ function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_valu
         corr_signal_2_interp = interp1(lags2(idx2-peak_find:idx2+peak_find),...
                                       corr_signal_2(idx2-peak_find:idx2+peak_find),...
                                       lags2_interp,...
-                                      "spline");
+                                      "makima");
         [correlation_value_interp(2),idx2_interp] = max(corr_signal_2_interp);
         delay2_interp = lags2_interp(idx2_interp);
     else
@@ -177,7 +177,7 @@ function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_valu
        corr_signal_3_interp = interp1(lags3(idx3-peak_find:idx3+peak_find),...
                                       corr_signal_3(idx3-peak_find:idx3+peak_find),...
                                       lags3_interp,...
-                                      "spline");
+                                      "makima");
        [correlation_value_interp(3),idx3_interp] = max(corr_signal_3_interp);
        delay3_interp = lags3_interp(idx3_interp);
     else
@@ -219,7 +219,6 @@ function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_valu
         end
         plot(lags1(idx), corr_signal_1(idx), 'dr');
         title('Reference Signal (Slice 1)'); legend('Original','Upsampled'); ylim([-0.1 1.1]); xlim([lags1(idx_left+8) lags1(idx_right)-8]); grid;
-
 
         % Measurement signal
         subplot(3,1,2); hold on;

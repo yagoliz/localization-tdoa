@@ -5,6 +5,48 @@ function [ signal_iq_filtered ] = filter_iq( signal_iq, signal_bandwidth_khz )
 % possible values: 400, 200 (UKW), 12 (12.5, NBFM channel), 40 
 
     switch signal_bandwidth_khz
+
+        case 1500
+
+            Fs = 2000;
+            Fpass = 750;
+            Fstop = 850;
+            Dpass = 0.0057563991496;
+            Dstop = 0.001;
+            dens = 20;
+
+            % Calculate the order from the parameters using FIRPMORD.
+            [N, Fo, Ao, W] = firpmord([Fpass, Fstop]/(Fs/2), [1 0], [Dpass, Dstop]);
+
+            % Calculate the coefficients using the FIRPM function.
+            b  = firpm(N, Fo, Ao, W, {dens});
+            Hd = dfilt.dffir(b);
+            
+            %filter
+            signal_iq_filtered = filter(Hd, signal_iq);
+
+            disp('Signal Filtered to 1.5 MHz')
+
+        case 1000
+
+            Fs = 2000;
+            Fpass = 500;
+            Fstop = 600;
+            Dpass = 0.0057563991496;
+            Dstop = 0.001;
+            dens = 20;
+
+            % Calculate the order from the parameters using FIRPMORD.
+            [N, Fo, Ao, W] = firpmord([Fpass, Fstop]/(Fs/2), [1 0], [Dpass, Dstop]);
+
+            % Calculate the coefficients using the FIRPM function.
+            b  = firpm(N, Fo, Ao, W, {dens});
+            Hd = dfilt.dffir(b);
+            
+            %filter
+            signal_iq_filtered = filter(Hd, signal_iq);
+
+            disp('Signal Filtered to 1 MHz')
         
         case 400        
             % Equiripple Lowpass filter designed using the FIRPM function.
