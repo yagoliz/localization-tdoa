@@ -46,20 +46,20 @@
       "height": 600
     },
     {
-      "serial": 202481586984579,
-      "name": "Alcorcon1",
-      "coordinates": [
-        40.3434,
-        -3.8444
-      ],
-      "height": 600
-    },
-    {
       "serial": 202481587650396,
       "name": "URJC1",
       "coordinates": [
         40.2832,
         -3.8215
+      ],
+      "height": 600
+    },
+    {
+      "serial": 202481586984579,
+      "name": "Alcorcon1",
+      "coordinates": [
+        40.3434,
+        -3.8444
       ],
       "height": 600
     },
@@ -79,9 +79,9 @@
         "bw_us": 0,
         "use_lte": true,
         "sample_rate": 2000000,
-        "corr_method": "abs",
+        "corr_method": "dphase",
         "filenum": 1,
-        "folder_date": "20211029",
+        "folder_date": "20211028",
         "correct": true,
         "interp": 1,
         "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/real_tests",

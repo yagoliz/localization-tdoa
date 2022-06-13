@@ -1,0 +1,32 @@
+{
+    "transmitters": {
+        "unknown": {
+            "height": 1315,
+            "freq": 920.0
+        },
+        "reference": {
+            "coord": [32.29259265433714, -106.69738125735523],
+            "coord2": [32.695333, -107.064444],
+            "height": 1315,
+            "freq": 525.3
+            }
+    },
+    "sensors": [
+        { "name": "tower-3", "coordinates": [32.61718, -106.74138], "height": 1317, "serial": 202481602394422, "ppm": -0.04},
+        { "name": "tower-1", "coordinates": [32.59019, -106.74172], "height": 1319, "serial": 202481588426833, "ppm": -1.345892},
+        { "name": "tower-2", "coordinates": [32.59022, -106.76594], "height": 1323, "serial": 251096696002852, "ppm": -1.40}
+    ],
+    "config": {
+        "samples_per_slice": 1000000,
+        "bw_rs": 0,
+        "bw_us": 1000,
+        "corr_method": "abs",
+        "sample_rate": 2000000,
+        "sample_rate_ltess": 1920000,
+        "filenum": 1,
+        "folder": "/home/ygglc/desktop/phd/research/localization/core/localization-tdoa/data/nato_testbed",
+        "correct": true,
+        "interp": 1,
+        "folder_date": "sample_6"
+    }
+}

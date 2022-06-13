@@ -1,318 +1,222 @@
-function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_value, correlation_value_interp, keep] = ... 
+function [doa_meters, doa_samples, doa_meters_2, doa_samples_2, correlation_value, correlation_value_interp, mp_delay, keep] = ...
     tdoa2(signal1_complex, signal2_complex, num_samples_per_freq, num_samples_per_slice, sample_rate, rx_distance_diff, ...
-    max_lag, corr_type,  report_level, signal_bandwidth_khz_rs, signal_bandwidth_khz_us, interpol)
+    max_lag, corr_type,  report_level, signal_bandwidth_khz_rs, signal_bandwidth_khz_us, interpol, correct_multipath, mp_si)
 
-    global c;
+global c;
 
-    % tdoa2 calculates the TDOA of two signals captured by two RXs
-    %	output:
-    %   doa_meters: 		delay in meters (how much signal1 is later than signal 2)
-    %	doa_samples: 		delay in samples
-    %   reliability: 		reliab. of the correlation, 0(bad)..1(good)
-    %   
-    %   input:
-    %	signal1: 			signal with length 3.6e6 from RX 1
-    %	signal2: 			signal with length 3.6e6 from RX 2
-    %   rx_distance_diff: 	difference in distance in meters between two RX to Ref (sign matters)
-    %	smooting_factor: 	for wideband signals
-    %	corr_type: 			switch between abs and delta phase (abs: 0, delta phase: 1);
-    %	report_level:		no reports: 0, show figures >0
-    %   signal_bandwidth_khz bandwidth of FIR filter for signal filtering applied to meas signal (400, 200, 40, 12, 0)
-    %   interpol            interpolation factor (0 or 1 = no interpolation)
-    %
-    %   requirement: signal capture with 2 Msps:
-    
-    %   still open: correct valid signal generation for interpolation 
-    %              (currently: native valid signal is used, which gives an approximation, which should be ok)
-    
-    
-    % slice signal into three parts
-    % 1111111111111111111111111xxxxxxxxxxxxx2222222222222222222222222xxx3333..
-    % |-num_samples_per_slice-|
-    % |-num_samples_per_freq+guard_interval-|-num_samples_per_slice-|
-    % |-------2*num_samples_per_freq + % guard_interval----------------|..
+% tdoa2 calculates the TDOA of two signals captured by two RXs
+%	output:
+%   doa_meters: 		delay in meters (how much signal1 is later than signal 2)
+%	doa_samples: 		delay in samples
+%   reliability: 		reliab. of the correlation, 0(bad)..1(good)
+%
+%   input:
+%	signal1: 			signal with length 3.6e6 from RX 1
+%	signal2: 			signal with length 3.6e6 from RX 2
+%   rx_distance_diff: 	difference in distance in meters between two RX to Ref (sign matters)
+%	smooting_factor: 	for wideband signals
+%	corr_type: 			switch between abs and delta phase (abs: 0, delta phase: 1);
+%	report_level:		no reports: 0, show figures >0
+%   signal_bandwidth_khz bandwidth of FIR filter for signal filtering applied to meas signal (400, 200, 40, 12, 0)
+%   interpol            interpolation factor (0 or 1 = no interpolation)
+%
+%   requirement: signal capture with 2 Msps:
+
+%   still open: correct valid signal generation for interpolation
+%              (currently: native valid signal is used, which gives an approximation, which should be ok)
+
+
+% slice signal into three parts
+% 1111111111111111111111111xxxxxxxxxxxxx2222222222222222222222222xxx3333..
+% |-num_samples_per_slice-|
+% |-num_samples_per_freq+guard_interval-|-num_samples_per_slice-|
+% |-------2*num_samples_per_freq + % guard_interval----------------|..
 
 %   Constants for our tdoa estimation
-    guard_interval = 3e5; % time to switch to a new frequency, fixed, empirically determined
-    peak_find = round(max_lag);
+guard_interval = 3e5; % time to switch to a new frequency, fixed, empirically determined
+peak_find = round(max_lag);
 
 %     Signal preparation
-    signal11_complex = signal1_complex(guard_interval                          : num_samples_per_slice - 1);
-    signal12_complex = signal1_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq   + num_samples_per_slice - 1);
-    signal13_complex = signal1_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + num_samples_per_slice - 1);
+signal11_complex = signal1_complex(guard_interval                          : num_samples_per_slice - 1);
+signal12_complex = signal1_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq   + num_samples_per_slice - 1);
+signal13_complex = signal1_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + num_samples_per_slice - 1);
 
-    signal21_complex = signal2_complex(guard_interval                          : num_samples_per_slice - 1);
-    signal22_complex = signal2_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq   + num_samples_per_slice - 1);
-    signal23_complex = signal2_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + num_samples_per_slice - 1);
-    
-    % This variable holds the output from xcorr
-    correlation_value = [0, 0, 0];
-    correlation_value_interp = [0, 0, 0]; 
-    
-    %% Correlation for slice 1 (ref)
-    signal11_complex = filter_iq(signal11_complex, signal_bandwidth_khz_rs);
-    signal21_complex = filter_iq(signal21_complex, signal_bandwidth_khz_rs);
-    
-    % native
-    [corr_signal_1, lags1] = correlate_iq(signal11_complex, signal21_complex, corr_type);
-    [correlation_value(1), idx1] = max(corr_signal_1);
-    delay1_native = lags1(idx1); % >0: signal1 later, <0 signal2 later
+signal21_complex = signal2_complex(guard_interval                          : num_samples_per_slice - 1);
+signal22_complex = signal2_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq   + num_samples_per_slice - 1);
+signal23_complex = signal2_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + num_samples_per_slice - 1);
 
-    % with interpolation
-    if (interpol > 1)
-%         signal11_interp = interp(signal11_complex, interpol);
-%         signal12_interp = interp(signal21_complex, interpol);
-%     
-%         [corr_signal_1_interp, lags1_interp] = correlate_iq(signal11_interp, signal12_interp, corr_type);
-%         [correlation_value_interp(1), idx1_interp_i] = max(abs(corr_signal_1_interp));
-%         delay1_interp = lags1_interp(idx1_interp_i)/interpol; % >0: signal1 later, <0 signal2 later
+% This variable holds the output from xcorr
+correlation_value = [0, 0, 0];
+correlation_value_interp = [0, 0, 0];
 
-%      The lags vector needs to go right before the next lag would be so
-%      that has to be (interpol-1)/interpol
-        lags1_interp = lags1(idx1-peak_find):1/interpol:lags1(idx1+peak_find);
-        corr_signal_1_interp = interp1(lags1(idx1-peak_find:idx1+peak_find),...
-                                      corr_signal_1(idx1-peak_find:idx1+peak_find),...
-                                      lags1_interp,...
-                                      "makima");
-%        [correlation_value_interp(1),idx1_interp] = max(abs(corr_signal_1_interp));
-        [correlation_value_interp(1),idx1_interp] = max(abs(corr_signal_1_interp));
-        delay1_interp = lags1_interp(idx1_interp);
+%% Correlation for slice 1 (ref)
+signal11_complex = filter_iq(signal11_complex, signal_bandwidth_khz_rs);
+signal21_complex = filter_iq(signal21_complex, signal_bandwidth_khz_rs);
+
+% native
+[corr_signal_1, lags1] = correlate_iq(signal11_complex, signal21_complex, corr_type);
+[correlation_value(1), idx1] = max(corr_signal_1);
+delay1_native = lags1(idx1); % >0: signal1 later, <0 signal2 later
+
+% with interpolation
+if (interpol > 1)
+    lags1_interp = lags1(idx1-peak_find):1/interpol:lags1(idx1+peak_find);
+    corr_signal_1_interp = interp1(lags1(idx1-peak_find:idx1+peak_find),...
+        corr_signal_1(idx1-peak_find:idx1+peak_find),...
+        lags1_interp,...
+        "makima");
+    %        [correlation_value_interp(1),idx1_interp] = max(abs(corr_signal_1_interp));
+    [correlation_value_interp(1),idx1_interp] = max(abs(corr_signal_1_interp));
+    delay1_interp = lags1_interp(idx1_interp);
+else
+    delay1_interp = 0;
+end
+
+%% Correlation for slice 2 (measure)
+signal12_complex = filter_iq(signal12_complex, signal_bandwidth_khz_us);
+signal22_complex = filter_iq(signal22_complex, signal_bandwidth_khz_us);
+
+disp(' ');
+[corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type);
+
+%truncate to valid area
+corr_signal_2_valid = zeros(length(corr_signal_2),1);
+corr_signal_2_valid(idx1) = corr_signal_2(idx1);
+
+for ii=1:round(max_lag)/2
+    corr_signal_2_valid(idx1+ii) = corr_signal_2(idx1+ii);
+end
+
+for ii=1:round(max_lag)/2
+    corr_signal_2_valid(idx1-ii) = corr_signal_2(idx1-ii);
+end
+
+% Multipath correction
+mp_delay = 0;
+if correct_multipath
+    [~, idx2] = max(corr_signal_2_valid);
+    lags_normalized = lags2(idx2-max_lag:idx2+max_lag);
+    corr_normalized = corr_signal_2_valid(idx2-max_lag:idx2+max_lag);
+    corr_normalized = sign(cos(angle(corr_normalized))).*abs(corr_normalized); 
+    [peaks, locations] = findpeaks(corr_normalized/max(abs(corr_signal_2_valid)),'MinPeakHeight',0.3,'MinPeakProminence',0.01);
+
+    % If we find multipath we have to correct it
+    if length(peaks) > 1
+        max_peak = max(locations) - max(mp_si); % Peak is at maximum multipath component and then to the left
+        distances = abs(locations - max_peak); % We select the closest peak (hopefully it lands on one peak)
+
+        [min_distance,real_loc] = min(distances);
+        if min_distance > 0.5
+            fprintf('WARNING: Peak appeared at a larger distance than expected: %f',min_distance);
+        end
+        real_peak = locations(real_loc);
+
+        correlation_value(2) = corr_normalized(real_peak);
+        delay2_native = lags_normalized(real_peak);
+        mp_delay = abs(min(locations) - real_peak); 
     else
-        delay1_interp = 0;
+        [correlation_value(2), idx2] = max(corr_signal_2_valid);
+        delay2_native = lags2(idx2); % >0: signal1 later, <0 signal2 later
     end
-
-    %% Correlation for slice 2 (measure)
-    signal12_complex = filter_iq(signal12_complex, signal_bandwidth_khz_us);
-    signal22_complex = filter_iq(signal22_complex, signal_bandwidth_khz_us);
-
-    disp(' ');    
-    [corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type);
-    
-    %truncate to valid area
-    corr_signal_2_valid = zeros(length(corr_signal_2),1);
-    corr_signal_2_valid(idx1) = corr_signal_2(idx1);
-
-     for ii=1:round(max_lag)/2
-         corr_signal_2_valid(idx1+ii) = corr_signal_2(idx1+ii);
-     end
-     
-     for ii=1:round(max_lag)/2
-         corr_signal_2_valid(idx1-ii) = corr_signal_2(idx1-ii);
-     end
-     
-%     [correlation_value(2), idx2] = max(abs(corr_signal_2_valid));
+else
     [correlation_value(2), idx2] = max(corr_signal_2_valid);
     delay2_native = lags2(idx2); % >0: signal1 later, <0 signal2 later
+end
 
+% with interpolation, only one valid
+if (interpol > 1)
+    lags2_interp = lags1(idx2-peak_find):1/interpol:lags2(idx2+peak_find);
+    corr_signal_2_interp = interp1(lags2(idx2-peak_find:idx2+peak_find),...
+        corr_signal_2(idx2-peak_find:idx2+peak_find),...
+        lags2_interp,...
+        "makima");
     
-    % with interpolation, only one valid
-    if (interpol > 1)
-%         signal12_interp = interp(signal12_complex, interpol);
-%         signal22_interp = interp(signal22_complex, interpol);
-% 
-%         [corr_signal_2_interp, lags2_interp] = correlate_iq(signal12_interp, signal22_interp, corr_type);
-%         [correlation_value_interp(2), idx2_interp_i] = max(abs(corr_signal_2_interp));
-%         delay2_interp = lags2_interp(idx2_interp_i)/interpol; % >0: signal1 later, <0 signal2 later
-        lags2_interp = lags1(idx2-peak_find):1/interpol:lags2(idx2+peak_find);
-        corr_signal_2_interp = interp1(lags2(idx2-peak_find:idx2+peak_find),...
-                                      corr_signal_2(idx2-peak_find:idx2+peak_find),...
-                                      lags2_interp,...
-                                      "makima");
+    if correct_multipath
+        index = find(lags2_interp == delay2_native);
+        [correlation_value_interp(2), ~] = max(corr_signal_2_interp(index-interpol-1:index+interpol+1));
+        delay2_interp = lags2_interp(corr_signal_2_interp == correlation_value_interp(2));
+        
+    else
         [correlation_value_interp(2),idx2_interp] = max(corr_signal_2_interp);
         delay2_interp = lags2_interp(idx2_interp);
-    else
-        delay2_interp = 0;
     end
+else
+    delay2_interp = 0;
+end
 
-    if report_level > 2
-        % display spectrum before and after filtering
-        figure;
-        subplot(2,1,1);
-        spectrum1 = 10*log10(abs(fftshift(fft(signal12_complex_unfiltered))));
-        spectrum1 = smooth(spectrum1, 201);
-        
-        spectrum2 = 10*log10(abs(fftshift(fft(signal22_complex_unfiltered))));
-        spectrum2 = smooth(spectrum2, 201);
-        
-        freq_axis = -(length(spectrum1)/2) : 1 : ((length(spectrum1)/2)-1);
-        plot(freq_axis, spectrum1, freq_axis, spectrum2);
-        title('Measurement Signal 1 & 2, unfiltered');
-        grid;
-        
-        subplot(2,1,2);
-        spectrum1 = 10*log10(abs(fftshift(fft(signal12_complex))));
-        spectrum1 = smooth(spectrum1, 201);
-        
-        spectrum2 = 10*log10(abs(fftshift(fft(signal22_complex))));
-        spectrum2 = smooth(spectrum2, 201);
-        
-        freq_axis = -(length(spectrum1)/2) : 1 : ((length(spectrum1)/2)-1);
-        plot(freq_axis, spectrum1, freq_axis, spectrum2);
-        title('Measurement Signal 1 & 2, filtered');
-        grid;
-    end
-    
-    
-    %% Correlation for slice 3 (ref check)
-    signal13_complex = filter_iq(signal13_complex, signal_bandwidth_khz_rs);
-    signal23_complex = filter_iq(signal23_complex, signal_bandwidth_khz_rs);
-    
-    
-    [corr_signal_3, lags3] = correlate_iq(signal13_complex, signal23_complex, corr_type);
-    corr_signal_3_valid = zeros(length(corr_signal_1),1);
-    corr_signal_3_valid(idx1-round(max_lag)/2:idx1+round(max_lag)/2) = corr_signal_3(idx1-round(max_lag)/2:idx1+round(max_lag)/2);
+%% Correlation for slice 3 (ref check)
+signal13_complex = filter_iq(signal13_complex, signal_bandwidth_khz_rs);
+signal23_complex = filter_iq(signal23_complex, signal_bandwidth_khz_rs);
 
-    [correlation_value(3), idx3] = max(corr_signal_3_valid);
-    delay3_native = lags3(idx3);
-        
-    % with interpolation
-    if (interpol > 1)
-%         signal13_interp = interp(signal13_complex, interpol);
-%         signal23_interp = interp(signal23_complex, interpol);
-% 
-%         [corr_signal_3_interp, lags3_interp] = correlate_iq(signal13_interp, signal23_interp, corr_type, max_lag);
-%         [correlation_value_interp(3), idx3_interp_i] = max(abs(corr_signal_3_interp));
-%         delay3_interp = lags3_interp(idx3_interp_i)/interpol;
-       lags3_interp = lags3(idx3-peak_find):1/interpol:lags3(idx3+peak_find);
-       corr_signal_3_interp = interp1(lags3(idx3-peak_find:idx3+peak_find),...
-                                      corr_signal_3(idx3-peak_find:idx3+peak_find),...
-                                      lags3_interp,...
-                                      "makima");
-       [correlation_value_interp(3),idx3_interp] = max(corr_signal_3_interp);
-       delay3_interp = lags3_interp(idx3_interp);
-    else
-        delay3_interp = 0;
-    end
-       
-       
-    
-    %% Display Correlation Signals
 
-    % display reference and reference check signal
-    if (report_level > 1)
-        figure('units','normalized','outerposition',[0 0 1 1]);
-        
-        if (interpol > 1) 
-            x_corr_interp = 1:(2*interpol*length(signal11_complex) - 1);
-            x_corr_interp_plot = (x_corr_interp-1)./interpol +(1/interpol);
-        end
+[corr_signal_3, lags3] = correlate_iq(signal13_complex, signal23_complex, corr_type);
+corr_signal_3_valid = zeros(length(corr_signal_1),1);
+corr_signal_3_valid(idx1-round(max_lag)/2:idx1+round(max_lag)/2) = corr_signal_3(idx1-round(max_lag)/2:idx1+round(max_lag)/2);
 
-        win_len = 10;
-        idx = idx1;
+[correlation_value(3), idx3] = max(corr_signal_3_valid);
+delay3_native = lags3(idx3);
 
-        idx_left = idx-win_len;
-        if idx_left < 1 
-            idx_left = 1;
-        end
-        idx_right = idx+win_len;
-        if idx_right > length(corr_signal_1) 
-            idx_right = length(corr_signal_1);
-        end
+% with interpolation
+if (interpol > 1)
+    lags3_interp = lags3(idx3-peak_find):1/interpol:lags3(idx3+peak_find);
+    corr_signal_3_interp = interp1(lags3(idx3-peak_find:idx3+peak_find),...
+        corr_signal_3(idx3-peak_find:idx3+peak_find),...
+        lags3_interp,...
+        "makima");
+    [correlation_value_interp(3),idx3_interp] = max(corr_signal_3_interp);
+    delay3_interp = lags3_interp(idx3_interp);
+else
+    delay3_interp = 0;
+end
 
-        % First reference signal
-        subplot(3,1,1); hold on;
-        stem(lags1(idx_left:idx_right), corr_signal_1(idx_left:idx_right));
-        
-        if (interpol > 1)
-            plot(lags1_interp((interpol*idx_left):(interpol*idx_right))./interpol, corr_signal_1_interp((interpol*idx_left):(interpol*idx_right)), 'm.', 'MarkerSize',7);
-            plot(delay1_interp, corr_signal_1_interp(idx1_interp_i), 'dg');
-        end
-        plot(lags1(idx), corr_signal_1(idx), 'dr');
-        title('Reference Signal (Slice 1)'); legend('Original','Upsampled'); ylim([-0.1 1.1]); xlim([lags1(idx_left+8) lags1(idx_right)-8]); grid;
+%% Calculate Correlation Results
 
-        % Measurement signal
-        subplot(3,1,2); hold on;
-        idx = idx2;
+if (interpol <= 1)
+    delay1 = delay1_native;
+    delay2 = delay2_native;
+    delay3 = delay3_native;
+else
+    delay1 = delay1_interp;
+    delay2 = delay2_interp;
+    delay3 = delay3_interp;
+end
 
-        idx_left = idx-win_len;
-        if idx_left < 1 
-            idx_left = 1;
-        end
-        idx_right = idx+win_len;
-        if idx_right > length(corr_signal_2) 
-            idx_right = length(corr_signal_2);
-        end
-        
-        stem(lags2(idx_left:idx_right) - delay1_native, corr_signal_2(idx_left:idx_right));
-        if interpol > 1
-            plot(lags2_interp((interpol*idx_left):(interpol*idx_right))./interpol - delay1_native, corr_signal_2_interp((interpol*idx_left):(interpol*idx_right)), 'm.');
-            plot(delay2_interp - delay1_native, corr_signal_2_interp(idx2_interp_i), 'dg');     
-        end
-        plot(lags2(idx) - delay1_native, corr_signal_2(idx), 'dr');
-        title('measurement Signal (Slice 2)'); legend('Original','Upsampled'); ylim([-0.1 1.1]); xlim([lags2(idx_left) - delay1_native lags2(idx_right) - delay1_native]); grid;
-        
-        % Reference signal check
-        subplot(3,1,3); hold on;
-        idx = idx3;
 
-        idx_left = idx-win_len;
-        if idx_left < 1 
-            idx_left = 1;
-        end
-        idx_right = idx+win_len;
-        if idx_right > length(corr_signal_3) 
-            idx_right = length(corr_signal_3);
-        end
-        
-        stem(lags3(idx_left:idx_right) - delay1_native, corr_signal_3(idx_left:idx_right));
-        if interpol > 1
-            plot(lags3_interp((interpol*idx_left):(interpol*idx_right))./interpol - delay1_native, corr_signal_3_interp((interpol*idx_left):(interpol*idx_right)), 'm.');
-            plot(delay3_interp - delay1_native, corr_signal_3_interp(idx3_interp_i), 'dg');
-        end
-        plot(lags3(idx) - delay1_native, corr_signal_3(idx), 'dr');
-        title('Reference Signal Check (Slice 3)'); legend('Original','Upsampled'); ylim([-0.1 1.1]); xlim([lags3(idx_left) - delay1_native lags3(idx_right) - delay1_native]); grid;
-    end
+if abs(delay1 - delay3) > 2 * interpol % A small delay can be tolerated (interpol always needs to be 1)
+    disp('<strong>WARNING: BAD REFERENCE SIGNALS: ref delays differ by more than 2 samples! </strong>');
+    keep = false;
+else
+    keep = true;
+end
+avg_delay13 = (delay1 + delay3) / 2; % Assuming delay1 is 0
 
-  
+ref_signal_diff_samples = (rx_distance_diff / c) * sample_rate; % known ref signal delay in samples
 
-    %% Calculate Correlation Results
-    
-    if (interpol <= 1)
-        delay1 = delay1_native;
-        delay2 = delay2_native;
-        delay3 = delay3_native;
-    else
-        delay1 = delay1_interp;
-        delay2 = delay2_interp;
-        delay3 = delay3_interp;
-    end 
-    
-    
-    if abs(delay1 - delay3) > 2 * interpol % A small delay can be tolerated (interpol always needs to be 1)
-        disp('<strong>WARNING: BAD REFERENCE SIGNALS: ref delays differ by more than 2 samples! </strong>');
-        keep = false;
-    else
-        keep = true;
-    end
-    avg_delay13 = (delay1 + delay3) / 2; % Assuming delay1 is 0    
-    
-    ref_signal_diff_samples = (rx_distance_diff / c) * sample_rate; % known ref signal delay in samples
+% doa_samples/_meters specifies how much signal1 is later than signal2
+doa_samples = delay2 - avg_delay13 + ref_signal_diff_samples; % time difference of arrival without delays due to reception start time and ref transmitter (desc. above)
+doa_samples_2 = delay2 - delay1 + ref_signal_diff_samples;
+doa_meters = (doa_samples / sample_rate) * c;
+doa_meters_2 = (doa_samples_2 / sample_rate) * c;
 
-    % doa_samples/_meters specifies how much signal1 is later than signal2
-    doa_samples = delay2 - avg_delay13 + ref_signal_diff_samples; % time difference of arrival without delays due to reception start time and ref transmitter (desc. above)
-    doa_samples_2 = delay2 - delay1 + ref_signal_diff_samples;
-    doa_meters = (doa_samples / sample_rate) * c;
-    doa_meters_2 = (doa_samples_2 / sample_rate) * c;
+if report_level > 0
+    disp(' ');
+    disp('CORRELATION RESULTS');
 
-    if report_level > 0
-        disp(' ');
-        disp('CORRELATION RESULTS');
+    disp(['raw delay1 (ref) (nativ/interp): ' int2str(delay1_native) ' / ' num2str(delay1_interp) ', reliability nativ (0..1): ' num2str(correlation_value(1))]);
+    disp(['raw delay2 (measure) (nativ/interp): ' int2str(delay2_native) ' / ' num2str(delay2_interp) ', reliability nativ: ' num2str(correlation_value(2))]);
+    disp(['raw delay3 (ref check) (nativ/interp): ' int2str(delay3_native) ' / ' num2str(delay3_interp) ', reliability nativ: ' num2str(correlation_value(3))]);
+    disp(['merged delay of ref and ref check: ' num2str(avg_delay13) ]);
+    disp(' ');
 
-        disp(['raw delay1 (ref) (nativ/interp): ' int2str(delay1_native) ' / ' num2str(delay1_interp) ', reliability nativ (0..1): ' num2str(correlation_value(1))]);
-        disp(['raw delay2 (measure) (nativ/interp): ' int2str(delay2_native) ' / ' num2str(delay2_interp) ', reliability nativ: ' num2str(correlation_value(2))]);
-        disp(['raw delay3 (ref check) (nativ/interp): ' int2str(delay3_native) ' / ' num2str(delay3_interp) ', reliability nativ: ' num2str(correlation_value(3))]);
-        disp(['merged delay of ref and ref check: ' num2str(avg_delay13) ]);
-        disp(' ');
+    disp(['specified distance difference to ref tx [m]: ' int2str(rx_distance_diff)]);
+    disp(['specified distance difference to ref tx [samples]: ' num2str(ref_signal_diff_samples)]);
+    disp(' ');
 
-        disp(['specified distance difference to ref tx [m]: ' int2str(rx_distance_diff)]);
-        disp(['specified distance difference to ref tx [samples]: ' num2str(ref_signal_diff_samples)]);
-        disp(' ');
-
-        disp('FINAL RESULT');
-        disp(['TDOA in samples: ' num2str(doa_samples) '(how much is signal1 later than signal2)']);
-        disp(['TDOA in distance [m]: ' num2str(doa_meters) ]);
-        disp(['Total Reliability (min of all 3): ' num2str(min(correlation_value)) ]);
-        disp(' ');
-    end
+    disp('FINAL RESULT');
+    disp(['TDOA in samples: ' num2str(doa_samples) '(how much is signal1 later than signal2)']);
+    disp(['TDOA in distance [m]: ' num2str(doa_meters) ]);
+    disp(['Total Reliability (min of all 3): ' num2str(min(correlation_value)) ]);
+    disp(' ');
+end
 end
 

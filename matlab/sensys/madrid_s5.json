@@ -53,6 +53,15 @@
         -3.8215
       ],
       "height": 600
+    },
+    {
+        "serial": 202481596393530,
+        "name": "madrid_city_1", 
+        "coordinates": [
+          40.39972,
+          -3.70665
+        ], 
+        "height": 600
     }
   ],
   "config": {

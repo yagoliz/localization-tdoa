@@ -131,7 +131,7 @@ for ii = 2
     for jj = 1:NUM_HYPERBOLAS
         sensor_1 = combinations(jj,1);
         sensor_2 = combinations(jj,2);
-        hyp_array{jj} = hyperbola(doa_array(jj), sensors(sensor_1,:), sensors(sensor_2,:));
+        hyp_array{jj} = gen_hyperbola(doa_array(jj), sensors(sensor_1,:), sensors(sensor_2,:));
     end
     
     %% Plot area

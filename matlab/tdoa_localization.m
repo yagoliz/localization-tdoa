@@ -1,7 +1,3 @@
-% =========================================================================
-%  Real test realization
-%  Author: Yago Lizarribar
-% =========================================================================
 function tdoa_res = tdoa_localization(config)
 
 warning ('off','all');
@@ -53,13 +49,19 @@ doa_meters2 = zeros(N,1);
 doa_samples = zeros(N,1);
 doa_samples2 = zeros(N,1);
 
-% Add correction
+% Add corrections
 ell = referenceEllipsoid('WGS84');
 correct_offset = problem_data.config.correct;
 if ~isfield(problem_data.config, "use_lte")
     use_lte = true;
 else
     use_lte = problem_data.config.use_lte;
+end
+
+if ~isfield(problem_data.config, "correct_multipath")
+    correct_multipath = false;
+else
+    correct_multipath = problem_data.config.correct_multipath;
 end
 
 % Plot heatmap
@@ -152,6 +154,7 @@ interpol_factor = problem_data.config.interp;
 ns_freq = problem_data.config.samples_per_slice;
 ns_slice = 0.7 * ns_freq;
 
+multipath_delays = zeros(NUM_SENSORS,1);
 keep = zeros(N,1);
 for ii = 1:N
     % Select the sensors and compute distance differences
@@ -165,9 +168,9 @@ for ii = 1:N
     end
 
     % Compute TDOA and store it
-    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~, keep(ii)] = ...
+    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~, multipath_delays(sj), keep(ii)] = ...
         tdoa2(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
-              max_lag, corr_type, report_level, bw_rs, bw_us, interpol_factor);
+              max_lag, corr_type, report_level, bw_rs, bw_us, interpol_factor, correct_multipath, multipath_delays(si));
 end
 
 %% Multilateration
@@ -225,7 +228,7 @@ lls(:) = [lat,lon];
 
 % Non Linear Optimization routines
 X0_init = llh2ecef([lat,lon,X0(3)])-center_ecef;
-options = optimoptions('lsqnonlin','Algorithm','trust-region-reflective','Display','none','OptimalityTolerance',1e-12,'StepTolerance',1e-12);
+options = optimoptions('lsqnonlin','Algorithm','trust-region-reflective','Display','none','OptimalityTolerance',1e-15,'StepTolerance',1e-15);
 
 optimfun = @(X) optimnlls_ecef(X, tdoa_values, sensors_ecef, combinations);
 X_ecef = lsqnonlin(optimfun,X0_init,[],[],options);
