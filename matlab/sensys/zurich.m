@@ -28,7 +28,7 @@ folders = ["20220612", "20220613", "20220614", "20220615" "20220616","20220617"]
 files = [5,10,10,10,10,10];
 % files = [3];
 
-corr_methods = ["iq"];
+corr_methods = ["dphase"];
 interp = [1, 5, 10, 20, 50];
 correct = [true,false];
 lte = [true,false];
@@ -67,11 +67,11 @@ for corr_id = 1:length(corr_methods)
                     end % folders
                     if multipath(kk)
                         % Saving our beloved file
-                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i_mp.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
+                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i_mp_modif.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
                         save(filename,'lls', 'error_lls', 'nlls', 'error_nlls');
                     else
                         % Saving our beloved file
-                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
+                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i_modif.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
                         save(filename,'lls', 'error_lls', 'nlls', 'error_nlls');
                     end
                 end

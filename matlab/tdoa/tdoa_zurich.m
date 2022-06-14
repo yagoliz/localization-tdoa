@@ -97,8 +97,8 @@ corr_normalized = corr_signal_2_valid(idx2-max_lag:idx2+max_lag);
 corr_normalized = sign(cos(angle(corr_normalized))).*abs(corr_normalized); 
 [peaks, locations] = findpeaks(corr_normalized/max(abs(corr_signal_2_valid)),'MinPeakHeight',0.3,'MinPeakProminence',0.1);
 
-if s1 == "dshush_2" && s2 == "alemino_ZRH"
-    loc = min(locations);
+if s1 == "alemino_ZRH" && s2 == "dshush_2"
+    loc = max(locations);
     lag = lags_normalized(loc);
 elseif s1 == "dshush_2" && s2 == "ETHZ_ETZ_Dach"
     loc = min(locations);
