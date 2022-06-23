@@ -33,17 +33,17 @@ global c;
 % |-------2*num_samples_per_freq + % guard_interval----------------|..
 
 %   Constants for our tdoa estimation
-guard_interval = 3e5; % time to switch to a new frequency, fixed, empirically determined
+guard_interval = 5e4; % time to switch to a new frequency, fixed, empirically determined
 peak_find = round(max_lag);
 
 %     Signal preparation
-signal11_complex = signal1_complex(guard_interval                          : num_samples_per_slice - 1);
-signal12_complex = signal1_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq   + num_samples_per_slice - 1);
-signal13_complex = signal1_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + num_samples_per_slice - 1);
+signal11_complex = signal1_complex(guard_interval                          : guard_interval + num_samples_per_slice - 1);
+signal12_complex = signal1_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq + guard_interval   + num_samples_per_slice - 1);
+signal13_complex = signal1_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + guard_interval + num_samples_per_slice - 1);
 
-signal21_complex = signal2_complex(guard_interval                          : num_samples_per_slice - 1);
-signal22_complex = signal2_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq   + num_samples_per_slice - 1);
-signal23_complex = signal2_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + num_samples_per_slice - 1);
+signal21_complex = signal2_complex(guard_interval                          : guard_interval + num_samples_per_slice - 1);
+signal22_complex = signal2_complex(num_samples_per_freq   + guard_interval : num_samples_per_freq + guard_interval   + num_samples_per_slice - 1);
+signal23_complex = signal2_complex(2*num_samples_per_freq + guard_interval : 2*num_samples_per_freq + guard_interval + num_samples_per_slice - 1);
 
 % This variable holds the output from xcorr
 correlation_value = [0, 0, 0];
@@ -125,7 +125,7 @@ end
 
 % with interpolation, only one valid
 if (interpol > 1)
-    lags2_interp = lags1(idx2-peak_find):1/interpol:lags2(idx2+peak_find);
+    lags2_interp = lags2(idx2-peak_find):1/interpol:lags2(idx2+peak_find);
     corr_signal_2_interp = interp1(lags2(idx2-peak_find:idx2+peak_find),...
         corr_signal_2(idx2-peak_find:idx2+peak_find),...
         lags2_interp,...

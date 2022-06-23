@@ -29,9 +29,9 @@ files = [5,10,10,10,10,10];
 % files = [3];
 
 corr_methods = ["dphase"];
-interp = [1, 5, 10, 20, 50];
-correct = [true,false];
-lte = [true,false];
+interp = [1];
+correct = [true];
+lte = [true];
 multipath = false;
 
 lls = zeros(sum(files),2);
@@ -67,11 +67,11 @@ for corr_id = 1:length(corr_methods)
                     end % folders
                     if multipath(kk)
                         % Saving our beloved file
-                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i_mp_modif.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
+                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i_.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
                         save(filename,'lls', 'error_lls', 'nlls', 'error_nlls');
                     else
                         % Saving our beloved file
-                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i_modif.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
+                        filename = sprintf("sensys/zurich/m%s_i%i_c%i_l%i.mat", corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
                         save(filename,'lls', 'error_lls', 'nlls', 'error_nlls');
                     end
                 end

@@ -12,6 +12,17 @@ close all;
 addpath([p '/tdoa']);
 addpath([p '/kiwi/m/']);
 
+blue_fill_str = '#cce3f2';
+blue_cent_str = '#3790cb';
+blue_fill = sscanf(blue_fill_str(2:end),'%2x%2x%2x',[1 3])/255;
+blue_cent = sscanf(blue_cent_str(2:end),'%2x%2x%2x',[1 3])/255;
+
+red_str = '#FF6961';
+red = sscanf(red_str(2:end),'%2x%2x%2x',[1 3])/255;
+
+green_str = '#77DD77';
+green = sscanf(green_str(2:end),'%2x%2x%2x',[1 3])/255;
+
 %% Constants
 % Earth Radius
 R = 6371 * 1e3;
@@ -125,37 +136,91 @@ for ii = 2
     
     combinations = nchoosek(1:3,2);
     NUM_HYPERBOLAS = length(combinations);
-    hyp_array = cell(NUM_HYPERBOLAS,1);
+    hyp_array = cell(NUM_HYPERBOLAS,3);
 %     doa_array = zeros(NUM_HYPERBOLAS,1);
-
+    perturbation  = 0.5 / 6e3 * c;
+    perturbation2 = 0.5 / 240e3 * c;
+    t = 0:0.0001:2;
     for jj = 1:NUM_HYPERBOLAS
         sensor_1 = combinations(jj,1);
         sensor_2 = combinations(jj,2);
-        hyp_array{jj} = gen_hyperbola(doa_array(jj), sensors(sensor_1,:), sensors(sensor_2,:));
+        h1 = hyperbola2d(doa_array(jj)+perturbation,sensors(sensor_1,:), sensors(sensor_2,:),t);
+        h1p = hyperbola2d(doa_array(jj)+perturbation2,sensors(sensor_1,:), sensors(sensor_2,:),t);
+        h2 = hyperbola2d(doa_array(jj)-perturbation,sensors(sensor_1,:), sensors(sensor_2,:),t);
+        h2p = hyperbola2d(doa_array(jj)-perturbation2,sensors(sensor_1,:), sensors(sensor_2,:),t);
+        hc = hyperbola2d(doa_array(jj),sensors(sensor_1,:), sensors(sensor_2,:),t);
+        h = [h1,fliplr(h2)];
+        hp = [h1p, fliplr(h2p)];
+        hyp_array{jj,1} = h;
+        hyp_array{jj,2} = hc;
+        hyp_array{jj,3} = hp;
     end
     
     %% Plot area
     figure();
 
-    hold on; grid on;
+    hold on;
 %     xlim([xmin, xmax]); ylim([ymin, ymax]);
-%     plot(dcf_x, dcf_y, 'kx', 'LineWidth', 3);
-    xlabel('X axis (m)');
-    ylabel('Y axis (m)');
+%     xlabel('X axis (km)');
+%     ylabel('Y axis (km)');
 
     % Plot sensors
     for jj = 1:3
-       plot(sensors(jj,1), sensors(jj,2), 'rx', 'LineWidth', 3); 
+       scatter(sensors(jj,1)/1000, sensors(jj,2)/1000, 100, '^', 'filled','MarkerEdgeColor',green,'MarkerFaceColor',green,'MarkerFaceAlpha',0.5); 
     end
 
     for jj = 1:length(combinations)
-        hyp_points = hyp_array{jj};
-        plot(hyp_points(1,:), hyp_points(2,:), 'b.-');
+        center_hyp = hyp_array{jj,2};
+        hyp_points = hyp_array{jj,1};
+        plot(center_hyp(1,:)/1000, center_hyp(2,:)/1000, 'Color', blue_cent,'LineStyle','--');
+        p = fill(hyp_points(1,:)/1000, hyp_points(2,:)/1000, blue_fill,'FaceAlpha',0.8);
+        p.EdgeColor = blue_cent;
     end
+
+    scatter(dcf_x/1000-2, dcf_y/1000+10, 100, 'd', 'filled','MarkerEdgeColor',red,'MarkerFaceColor',red,'MarkerFaceAlpha',0.5);
     
-    plot(x , y , 'gx', 'LineWidth', 3);
-    plot(x2, y2, 'gx', 'LineWidth', 3);
-    plot(x3, y3, 'gx', 'LineWidth', 3);
+    xlim([-800,800]); %xticks([-600,-400,-200,0,200,400,600]);
+    xticks([]);
+    ylim([-800,800]); %yticks([-600,-400,-200,0,200,400,600]);
+    yticks([])
+    box on; axis square;
+%     set(gca,'FontSize',30,'XTickLabelRotation',0);
+    pbaspect([1.1,1,1]);
+    print(gcf, '-dpdf', '-r600', 'sensys/hyperb/hyperbolas2.pdf')
+    %% Zoom
+    figure();
+
+    hold on;
+%     xlim([xmin, xmax]); ylim([ymin, ymax]);
+%     xlabel('X axis (km)');
+%     ylabel('Y axis (km)');
+
+    % Plot sensors
+    for jj = 1:3
+       scatter(sensors(jj,1)/1000, sensors(jj,2)/1000, 100, '^', 'filled','MarkerEdgeColor',green,'MarkerFaceColor',green,'MarkerFaceAlpha',0.5); 
+    end
+
+    for jj = 1:length(combinations)
+        center_hyp = hyp_array{jj,2};
+        hyp_points = hyp_array{jj,3};
+        plot(center_hyp(1,:)/1000, center_hyp(2,:)/1000, 'Color', blue_cent,'LineStyle','--');
+        p = fill(hyp_points(1,:)/1000, hyp_points(2,:)/1000, blue_fill,'FaceAlpha',0.5);
+        p.EdgeColor = blue_cent;
+    end
+
+    scatter(dcf_x/1000-2, dcf_y/1000+10.5, 100, 'd', 'filled','MarkerEdgeColor',red,'MarkerFaceColor',red,'MarkerFaceAlpha',0.5);
+    
+%     scatter(x/1000 , y/1000 , 100, 'o', 'filled','MarkerEdgeColor',[0 .5 .1],'MarkerFaceColor',[0 .7 .1]);
+%     scatter(x2/1000, y2/1000, 100, 'o', 'filled','MarkerEdgeColor',[0 .5 .1],'MarkerFaceColor',[0 .7 .1]);
+%     scatter(x3/1000, y3/1000, 100, 'o', 'filled','MarkerEdgeColor',[0 .5 .1],'MarkerFaceColor',[0 .7 .1]);
+    xlim([-40,-30]); %xticks([-45,-40,-35,-30,-25]);
+    xticks([]);
+    ylim([215,223]); %yticks([205,210,215,220,225]);
+    yticks([]);
+    box on; axis square;
+    set(gca,'FontSize',30);
+    pbaspect([1.1,1,1]);
+    print(gcf, '-dpdf', '-r600', 'sensys/hyperb/hyperbolasz2.pdf')
 end
 
 %% Alignment function

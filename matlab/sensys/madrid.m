@@ -37,10 +37,10 @@ files = [5, 5, 5, 5, 5];
 % files = [17,5,5,5,5];
 
 corr_methods = ["dphase","abs","iq"];
-interp = [1, 5, 10, 20, 50];
-correct = [true];
-lte = [true];
-multipath = [true];
+interp = [1,2, 5, 10, 20];
+correct = [true,false];
+lte = [true,false];
+multipath = [false,true];
 
 % For tests
 % folders = ["20211129", "20211130", "20211214"];
@@ -83,11 +83,11 @@ for corr_id = 1:length(corr_methods)
                     end % folders
                     if multipath(kk)
                         % Saving our beloved file
-                        filename = sprintf("sensys/madrid/s%i/m%s_i%i_c%i_l%i_mp.mat", NUM_SENSORS, corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
+                        filename = sprintf("sensys/madrid2/s%i/m%s_i%i_c%i_l%i_mp.mat", NUM_SENSORS, corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
                         save(filename,'lls', 'error_lls', 'nlls', 'error_nlls');
                     else
                         % Saving our beloved file
-                        filename = sprintf("sensys/madrid/s%i/m%s_i%i_c%i_l%i.mat", NUM_SENSORS, corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
+                        filename = sprintf("sensys/madrid2/s%i/m%s_i%i_c%i_l%i.mat", NUM_SENSORS, corr_methods(corr_id), interp(interp_id), correct(ii), lte(jj));
                         save(filename,'lls', 'error_lls', 'nlls', 'error_nlls');
                     end
                 end

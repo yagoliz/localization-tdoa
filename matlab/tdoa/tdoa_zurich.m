@@ -107,6 +107,11 @@ elseif s1 == "alemino_ZRH" && s2 == "ETHZ_ETZ_Dach"
     if length(peaks) == 3 || length(peaks) == 2
         loc = locations(2);
         lag = lags_normalized(loc);
+    elseif length(peaks) > 3
+        co = smooth(corr_normalized);
+        [p,l] = findpeaks(co/max(abs(co)),'MinPeakHeight',0.3,'MinPeakProminence',0.1);
+        loc = max(l);
+        lag = lags_normalized(loc);
     else
         loc = locations(1);
         lag = lags_normalized(loc);
@@ -118,7 +123,7 @@ correlation_value(2) = corr_signal_2_valid(idx2);
 
 % with interpolation, only one valid
 if (interpol > 1)
-    lags2_interp = lags1(idx2-peak_find):1/interpol:lags2(idx2+peak_find);
+    lags2_interp = lags2(idx2-peak_find):1/interpol:lags2(idx2+peak_find);
     corr_signal_2_interp = interp1(lags2(idx2-peak_find:idx2+peak_find),...
         corr_signal_2(idx2-peak_find:idx2+peak_find),...
         lags2_interp,...

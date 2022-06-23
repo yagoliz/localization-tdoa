@@ -155,7 +155,6 @@ ns_freq = problem_data.config.samples_per_slice;
 ns_slice = 0.7 * ns_freq;
 
 multipath_delays = zeros(NUM_SENSORS,1);
-keep = zeros(N,1);
 for ii = 1:N
     % Select the sensors and compute distance differences
     si = combinations(ii,1);
@@ -168,8 +167,8 @@ for ii = 1:N
     end
 
     % Compute TDOA and store it
-    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~, multipath_delays(sj), keep(ii)] = ...
-        tdoa2(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
+    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~, multipath_delays(sj)] = ...
+        tdoa3(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
               max_lag, corr_type, report_level, bw_rs, bw_us, interpol_factor, correct_multipath, multipath_delays(si));
 end
 

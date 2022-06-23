@@ -9,8 +9,9 @@ figure(); grid on; hold on; stairs(X1,F1,'LineWidth',2); stairs(X2,F2,'LineWidth
 xlabel('Max distance between points with same Cell ID (m)'); ylabel('Cumulative Probability'); legend('San Sebastian', 'Alcorcon','Location','SouthEast');
 
 %% Plot GSM different values
-load('jitter');
-add_jitter = 1;
+% load('jitter');
+add_jitter = 0;
+jitter = 0;
 
 load('results/939806_2000000_original_dphase');
 gsm_orig = abs(doa_meters_2) + 150 + add_jitter * jitter;

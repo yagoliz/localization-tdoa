@@ -1,7 +1,7 @@
 %% Config File for TDOA setup
 
 % Variables for composing
-tx_type = 'dvbt';
+tx_type = 'dab';
 if strcmp(tx_type, 'dvbt')
     fRS_MHz = 627;
 elseif strcmp(tx_type, 'dab')
@@ -10,7 +10,7 @@ elseif strcmp(tx_type, 'gsm')
     fRS_MHz = 932;
 end
 
-us_type = 'gsm';
+us_type = 'lte';
 if strcmp(us_type, 'dvbt')
     fUS_MHz = 627;
 elseif strcmp(us_type, 'dab')
@@ -24,12 +24,14 @@ end
 lo_correction = true;
 compute_ppm = false;
 fileppm = ['ppm/', 'ppm_rs_', tx_type, '_us_', us_type];
-interpol_factor = 10;
+interpol_factor = 1;
 corr_type = 'dphase';
 
 % Intervals for data
 num_samples_per_freq = 1e6; 
-num_samples_per_slice = 0.7 * num_samples_per_freq;
+% num_samples_per_slice = 0.7 * num_samples_per_freq;
+num_samples_per_slice = logspace(3,6);
+num_samples_per_slice = round(num_samples_per_slice(1:end-1)/100)*100;
 sampling_rate_ltess = 1.92e6;
 sampling_rate_tdoa = 2e6;
 
@@ -48,14 +50,14 @@ fUS = fUS_MHz * 1e6;
 % filename for results
 if lo_correction
     if interpol_factor < 2
-        results_filename = ['splitter_', tx_type, '_', us_type, '_fo_correction_no_interp_', corr_type];
+        results_filename = ['splitter_conv_', tx_type, '_', us_type, '_fo_correction_no_interp_', corr_type];
     elseif interpol_factor < 10
-        results_filename = ['splitter_', tx_type, '_', us_type, '_fo_correction_0', num2str(interpol_factor), '_interp_', corr_type];
+        results_filename = ['splitter_conv_', tx_type, '_', us_type, '_fo_correction_0', num2str(interpol_factor), '_interp_', corr_type];
     else
-        results_filename = ['splitter_', tx_type, '_', us_type, '_fo_correction_', num2str(interpol_factor), '_interp_', corr_type];
+        results_filename = ['splitter_conv_', tx_type, '_', us_type, '_fo_correction_', num2str(interpol_factor), '_interp_', corr_type];
     end
 else
-    results_filename = ['splitter_', tx_type, '_', us_type, '_original_', corr_type];
+    results_filename = ['splitter_conv_', tx_type, '_', us_type, '_original_', corr_type];
 end
 
 % 0: no plots

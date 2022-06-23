@@ -1,4 +1,4 @@
-function tdoa_res = tdoa_localization(config)
+function tdoa_res = tdoa_localization_zurich(config)
 
 warning ('off','all');
 
@@ -154,8 +154,6 @@ interpol_factor = problem_data.config.interp;
 ns_freq = problem_data.config.samples_per_slice;
 ns_slice = 0.7 * ns_freq;
 
-multipath_delays = zeros(NUM_SENSORS,1);
-keep = zeros(N,1);
 for ii = 1:N
     % Select the sensors and compute distance differences
     si = combinations(ii,1);
@@ -168,25 +166,20 @@ for ii = 1:N
     end
 
     % Compute TDOA and store it
-    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~, keep(ii)] = ...
-        tdoa_zurich(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
+    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~] = ...
+        tdoa_zurich_2(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
               max_lag, corr_type, report_level, bw_rs, bw_us, interpol_factor,...
               problem_data.sensors(si).name, problem_data.sensors(sj).name);
 end
 
 %% Multilateration
-% Data conversion
-sensors_ecef = llh2ecef(sensors);
-center_ecef = mean(sensors_ecef,1);
-sensors_ecef = sensors_ecef - center_ecef;
-
 % Optimization routines
 % With latitude/longitude
 X0 = mean(sensors,1);
 [xapprox, yapprox] = latlong2xy(sensors(:,1),sensors(:,2),X0(1),X0(2));
 
 % With ECEF coordinates
-if correct_offset && ~use_lte
+if ~use_lte
     tdoa_values = doa_meters;
 else
     tdoa_values = doa_meters2;
