@@ -1,4 +1,4 @@
-function tdoa_res = tdoa_localization_zurich(config)
+function tdoa_res = tdoa_localization(config)
 
 warning ('off','all');
 
@@ -154,6 +154,7 @@ interpol_factor = problem_data.config.interp;
 ns_freq = problem_data.config.samples_per_slice;
 ns_slice = 0.7 * ns_freq;
 
+multipath_delays = zeros(NUM_SENSORS,1);
 for ii = 1:N
     % Select the sensors and compute distance differences
     si = combinations(ii,1);
@@ -166,20 +167,24 @@ for ii = 1:N
     end
 
     % Compute TDOA and store it
-    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~] = ...
-        tdoa_zurich_2(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
-              max_lag, corr_type, report_level, bw_rs, bw_us, interpol_factor,...
-              problem_data.sensors(si).name, problem_data.sensors(sj).name);
+    [doa_meters(ii), doa_samples(ii), doa_meters2(ii), doa_samples2(ii), ~, ~, multipath_delays(sj)] = ...
+        tdoa3(signal_local{si}, signal_local{sj}, ns_freq, ns_slice, sr_local, rs_diff_ij, ...
+              max_lag, corr_type, report_level, bw_rs, bw_us, interpol_factor, correct_multipath, multipath_delays(si));
 end
 
 %% Multilateration
+% Data conversion
+sensors_ecef = llh2ecef(sensors);
+center_ecef = mean(sensors_ecef,1);
+sensors_ecef = sensors_ecef - center_ecef;
+
 % Optimization routines
 % With latitude/longitude
 X0 = mean(sensors,1);
 [xapprox, yapprox] = latlong2xy(sensors(:,1),sensors(:,2),X0(1),X0(2));
 
 % With ECEF coordinates
-if ~use_lte
+if correct_offset && ~use_lte
     tdoa_values = doa_meters;
 else
     tdoa_values = doa_meters2;
@@ -221,12 +226,12 @@ lat = real(latc); lon = real(lonc);
 lls(:) = [lat,lon];
 
 % Non Linear Optimization routines
-X0_init = [lat,lon,X0(3)];
+X0_init = llh2ecef([lat,lon,X0(3)])-center_ecef;
 options = optimoptions('lsqnonlin','Algorithm','trust-region-reflective','Display','none','OptimalityTolerance',1e-15,'StepTolerance',1e-15);
 
-optimfun = @(X) optimnlls_llh(X, tdoa_values, sensors, combinations);
-X_llh = lsqnonlin(optimfun,X0_init,[],[],options);
-nlls(:) = X_llh;
+optimfun = @(X) optimnlls_ecef(X, tdoa_values, sensors_ecef, combinations);
+X_ecef = lsqnonlin(optimfun,X0_init,[],[],options);
+nlls(:) = ecef2llh(X_ecef+center_ecef);
 
 %% Pretty results
 % Calculate heatmap
