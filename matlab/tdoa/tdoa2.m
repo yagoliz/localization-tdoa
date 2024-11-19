@@ -76,7 +76,6 @@ end
 signal12_complex = filter_iq(signal12_complex, signal_bandwidth_khz_us);
 signal22_complex = filter_iq(signal22_complex, signal_bandwidth_khz_us);
 
-disp(' ');
 [corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type);
 
 %truncate to valid area

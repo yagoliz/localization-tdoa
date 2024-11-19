@@ -1,0 +1,29 @@
+{
+    "transmitters": {
+        "unknown": {
+            "coord": [40.420570, -3.664179],
+            "height": 600,
+            "freq": 208.0
+        },
+        "reference": {
+            "coord": [40.420570, -3.664179],
+            "height": 600,
+            "freq": 196.0
+            }
+    },
+    "sensors": [
+        {"name": "rack_1", "coordinates": [40.33700487629082, -3.7704030769652808], "height": 600, "serial": 202481593109723},
+        {"name": "chamberi", "coordinates": [40.4345206595492, -3.7133489826847645], "height": 600,"serial": 202481591991736}
+    ],
+    "config": {
+        "samples_per_slice": 1000000,
+        "sample_rate": 2000000,
+        "sample_rate_ltess": 1920000,
+        "filenum": 1,
+        "folder": "/Users/ygglc/Work/PhD/Research/TDOALoc/Data/Real/Madrid/",
+        "correct": true,
+        "interp": 1,
+        "exp": 100,
+        "folder_date": "20211028"
+    }
+}

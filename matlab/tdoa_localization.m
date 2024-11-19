@@ -1,4 +1,4 @@
-function tdoa_res = tdoa_localization_zurich(config)
+function tdoa_res = tdoa_localization(config)
 
 warning ('off','all');
 

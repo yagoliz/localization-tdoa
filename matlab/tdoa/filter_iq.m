@@ -194,7 +194,6 @@ function [ signal_iq_filtered ] = filter_iq( signal_iq, signal_bandwidth_khz )
             
         case 0
             signal_iq_filtered = signal_iq;
-            disp('Signal not filtered');
             
         otherwise
             signal_iq_filtered = signal_iq;

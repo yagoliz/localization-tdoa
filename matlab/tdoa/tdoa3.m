@@ -106,7 +106,6 @@ signal22_complex = signal2_complex(num_samples_per_freq + guard_interval : num_s
 signal12_complex = filter_iq(signal12_complex, signal_bandwidth_khz_us);
 signal22_complex = filter_iq(signal22_complex, signal_bandwidth_khz_us);
 
-disp(' ');
 [corr_signal_2, lags2] = correlate_iq(signal12_complex, signal22_complex, corr_type);
 
 % Multipath correction
